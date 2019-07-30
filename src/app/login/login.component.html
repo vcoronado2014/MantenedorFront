@@ -18,12 +18,14 @@
 
               <p>
                 <span class="fa fa-user"></span>
-                <input type="text" Placeholder="Username" required>
+                <!--<input type="text" Placeholder="Username" [(ngModel)]="loginUsuario" required>-->
+                <input [(ngModel)]="loginUsuario"  name="loginUsuario" type="text" placeholder="Usuario">
               </p>
               <!-- JS because of IE support; better: placeholder="Username" -->
               <p>
                 <span class="fa fa-lock"></span>
-                <input type="password" Placeholder="Password" required>
+                <!--<input type="password" Placeholder="Password" [(ngModel)]="loginContrasena" required>-->
+                <input [(ngModel)]="loginContrasena"  name="loginContrasena" type="password" class="form-control" placeholder="Contraseña">
               </p>
               <!-- JS because of IE support; better: placeholder="Password" -->
 
@@ -38,7 +40,7 @@
                     <!-- <a class="nav-link" [routerLink]="['../home']">Cancelar</a> -->
                 </span>
                 <span style="width:45%; text-align:right;  display: inline-block;">
-                  <input type="submit" value="Ingresar">
+                  <input type="submit" value="Ingresar"  (click)="IniciarSesion()" (key.up)="IniciarSesion()">
                 </span>
               </div>
 
