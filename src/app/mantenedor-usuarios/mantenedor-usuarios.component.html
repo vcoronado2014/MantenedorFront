@@ -1,0 +1,188 @@
+<app-header-app></app-header-app>
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<section class="container-app">
+  <!--contenido informativo antes de la lista de usuarios -->
+
+      <div class="d-flex w-100 justify-content-between breadcrumb">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item" aria-current="page">Administración</li>
+              <li class="breadcrumb-item active" aria-current="page">Usuarios</li>
+          </ol>
+          <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Usuario</button>
+      </div>
+    <div class="row">
+      <!--LISTA DE USUARIOS -->
+        <div class="col-sm-6">
+          <div class="list-group" *ngFor="let usu of listaUsuarios">
+              <a class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">{{usu.Persona.Nombres}} {{usu.Persona.ApellidoPaterno}} {{usu.Persona.ApellidoMaterno}}</h5>
+                  <small><span class="fa fa-mobile-alt"></span> {{usu.Persona.Telefonos}}</small>
+                </div>
+                <p class="mb-1">{{usu.Persona.DireccionCompleta}}, {{usu.Comuna.Nombre}}, {{usu.Region.Nombre}} </p>
+                <p class="mb-1"><span class="fa fa-envelope"></span> {{usu.AutentificacionUsuario.CorreoElectronico}}</p>
+                <div class="d-flex w-100 justify-content-between">
+                    <small>{{usu.Rol.Nombre}}</small>
+                    <small *ngIf="usu.AutentificacionUsuario.EsVigente == 1"><span class="fa fa-user-alt"></span> Activo</small>
+                    <small *ngIf="usu.AutentificacionUsuario.EsVigente != 1"><span class="fa fa-user-alt-slash"></span> Inactivo</small>
+                </div>
+                <div class="d-flex w-100 justify-content-between" style="padding-top: 2%;">
+                    <button type="button" class="btn btn-secondary" [disabled]="nombreUsuarioLogueado == usu.AutentificacionUsuario.NombreUsuario" *ngIf="usu.AutentificacionUsuario.EsVigente == 1" data-toggle="modal" data-target="#exampleModalCenter" (click)="seleccionar(usu)">Desactivar</button>
+                    <button type="button" class="btn btn-warning" [disabled]="nombreUsuarioLogueado == usu.AutentificacionUsuario.NombreUsuario" *ngIf="usu.AutentificacionUsuario.EsVigente != 1" data-toggle="modal" data-target="#exampleModalCenter1" (click)="seleccionar(usu)">Activar</button>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion" (click)="editar(usu)">Editar</button>
+                </div>
+              </a>
+            </div>
+        </div>
+      </div>
+      
+</section>
+<!-- Modal -->
+<div class="modal fade" id="modalEdicion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{tituloModal}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- contenido del formulario -->
+          <div class="col-md-12 ">
+            <form [formGroup]="forma" (ngSubmit)="guardarContratante()">
+              <!-- primera fila-->
+              <div class="form-row mb-2">
+                <div class="input-group-sm col-md-6">
+                  <label for="inputNombreUsuario">Nombre Usuario</label>
+                  <input type="text" class="form-control" id="inputNombreUsuario" placeholder="Usuario"
+                    formControlName="nuevoNombreUsuario">
+                </div>
+                <div class="input-group-sm col-md-6">
+                  <label for="inputNodo">Empresa</label>
+                  <select class="custom-select" class="form-control" id="inputNodo" formControlName="nuevoNodo">
+                    <option *ngFor="let r of listaNodos;" [value]="r.Id">{{r.RazonSocial}}</option>
+                  </select>
+                </div>
+              </div>
+              <!-- segunda fila-->
+              <div class="form-row mb-2">
+                <div class="input-group-sm col-md-4">
+                  <label for="inputNombre">Nombres</label>
+                  <input type="text" class="form-control" id="inputNombre" placeholder="Nombres"
+                    formControlName="nuevoNombre">
+                </div>
+                <div class="input-group-sm col-md-4">
+                  <label for="inputApellidoPaterno">Apellido Paterno</label>
+                  <input type="text" class="form-control" id="inputApellidoPaterno" placeholder="Apellido Paterno"
+                    formControlName="nuevoApellidoPaterno">
+                </div>
+                <div class="input-group-sm col-md-4">
+                  <label for="inputApellidoMaterno">Apellido Materno</label>
+                  <input type="text" class="form-control" id="inputApellidoMaterno" formControlName="nuevoApellidoMaterno">
+                </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="input-group-sm col-md-6">
+                  <label for="inputRegion1">Región</label>
+                  <select (change)="onChangeRegion($event)" class="custom-select" class="form-control" id="inputRegion1"
+                    formControlName="nuevoUsuarioRegion">
+                    <option *ngFor="let v of listaRegiones;" [value]="v.Id">{{v.Nombre}}</option>
+                  </select>
+                </div>
+                <div class="input-group-sm col-md-6">
+                  <label for="inputComuna">Comuna</label>
+                  <select class="custom-select" class="form-control" id="inputComuna" formControlName="nuevoUsuarioComuna">
+                    <option *ngFor="let r of listaComunas;" [value]="r.Id">{{r.Nombre}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="input-group-sm col-md-5">
+                  <label for="inputDireccion">Dirección</label>
+                  <input type="text" class="form-control" id="inputDireccion" placeholder="Dirección"
+                    formControlName="nuevoUsuarioDireccion">
+                </div>
+                <div class="input-group-sm col-md-3">
+                  <label for="inputTelefonos">Teléfonos</label>
+                  <input type="text" class="form-control" id="inputTelefonos" formControlName="nuevoTelefonos">
+                </div>
+                <div class="input-group-sm col-md-4">
+                  <label for="inputCorreo">Correo</label>
+                  <input type="text" class="form-control" id="inputCorreo" formControlName="nuevoCorreo" placeholder="Correo">
+                </div>
+          
+              </div>
+              <div class="form-row mb-2">
+                  <div class="input-group-sm col-md-4">
+                    <label for="inputRol">Rol</label>
+                    <select class="custom-select" class="form-control" id="inputRol" formControlName="nuevoRol">
+                        <option *ngFor="let r of listaRoles;" [value]="r.Id">{{r.Nombre}}</option>
+                      </select>
+                  </div>
+                  <div class="input-group-sm col-md-4">
+                    <label for="inputPassword">Contraseña</label>
+                    <input type="password" class="form-control" id="inputPassword" formControlName="nuevoPassword">
+                  </div>
+                  <div class="input-group-sm col-md-4">
+                    <label for="inputRepitaPassword">Repita Contraseña</label>
+                    <input type="password" class="form-control" id="inputRepitaPassword" formControlName="nuevoRepitaPassword">
+                  </div>
+            
+                </div>
+            </form>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="guardar()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--modal desactivar o activar-->
+<!-- Modal desactivar -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true" *ngIf="usuDesactivarActivar">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Desactivar Usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Está seguro de desactivar al Usuario {{usuDesactivarActivar.Persona.Nombres}} {{usuDesactivarActivar.Persona.ApellidoPaterno}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="desactivar()">SI</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal activar -->
+<div class="modal fade" id="exampleModalCenter1" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true" *ngIf="usuDesactivarActivar">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Activar Usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Está seguro de activar al Usuario {{usuDesactivarActivar.Persona.Nombres}} {{usuDesactivarActivar.Persona.ApellidoPaterno}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="activar()">SI</button>
+      </div>
+    </div>
+  </div>
+</div>

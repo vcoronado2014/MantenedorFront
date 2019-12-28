@@ -1,0 +1,268 @@
+<app-header-app></app-header-app>
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<section class="container-app">
+  <!--contenido informativo antes de la lista de usuarios -->
+
+      <div class="d-flex w-100 justify-content-between breadcrumb">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item" aria-current="page">Administración</li>
+              <li class="breadcrumb-item active" aria-current="page">Clientes</li>
+          </ol>
+          <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Usuario</button>
+      </div>
+
+      <div class="grid" style="padding: 20px;">
+        <!-- <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="mdl-data-table" style="width:100%"> -->
+          <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Ciudad</th>
+              <th>Comuna</th>
+              <th>Dirección</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let person of persons">
+              <td>{{ person.Id }}</td>
+              <td>{{ person.NomClient }}</td>
+              <td>{{ person.TelClient }}</td>
+              <td>{{ person.CiuClient }}</td>
+              <td>{{ person.ComClient }}</td>
+              <td>{{ person.DirClient }}</td>
+              <td><button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion" (click)="editar(person)">Editar</button></td>
+            </tr>
+          </tbody>
+          </table>
+      </div>
+               <!-- otra tabla -->
+               <p-table #tt [columns]="cols" [value]="persons" [paginator]="true" [rows]="10" [globalFilterFields]="['NomClient']" dataKey="Id">
+                <ng-template pTemplate="caption">
+                  <div style="text-align: right">
+                    <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                    <input type="text" pInputText size="50" placeholder="Global Filter" id="filterText"
+                      (input)="tt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <!-- icono para expandir -->
+                    <th style="width: 3em"></th>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
+                  <tr>
+                    <td>
+                      <a href="#" [pRowToggler]="rowData">
+                        <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+                      </a>
+                    </td>
+                    <td *ngFor="let col of columns">
+                      {{rowData[col.field]}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <!-- expandir -->
+                <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
+                  <tr>
+                      <td [attr.colspan]="columns.length + 1">
+                          <div class="ui-g ui-fluid" style="font-size:16px;padding:20px">
+                              <div class="ui-g-12 ui-md-9">
+                                  <div class="ui-g">
+                                      <div class="ui-g-12">
+                                          <b>Vin:</b> {{rowData.Id}}
+                                      </div>
+                                      <div class="ui-g-12">
+                                          <b>Year:</b> {{rowData.NomClient}}
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </td>
+                  </tr>
+              </ng-template>
+              </p-table>
+</section>
+<!-- Modal -->
+<div class="modal fade" id="modalEdicion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{tituloModal}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- contenido del formulario -->
+          <div class="col-md-12 ">
+            <form [formGroup]="forma" (ngSubmit)="guardarContratante()">
+              <!-- primera fila-->
+              <div class="form-row mb-2">
+                <div class="input-group-md col-md-3">
+                  <label for="inputRut">Rut</label>
+                  <input type="text" class="form-control" id="inputRut" placeholder="Rut"
+                    formControlName="nuevoRut" maxlength="9">
+                </div>
+                <div class="input-group-md col-md-1">
+                  <label for="inputDig">DV</label>
+                  <input type="text" class="form-control" id="inputDig" placeholder=""
+                    formControlName="nuevoDig" (keydown)="this.utiles.UpperCaseF($event)" maxlength="1">
+                </div>
+                <div class="input-group-md col-md-8">
+                  <label for="inputNombre">Nombres</label>
+                  <input type="text" class="form-control" id="inputNombre" placeholder="Nombres"
+                    formControlName="nuevoNombre" (keydown)="this.utiles.UpperCaseF($event)" maxlength="200">
+                </div>
+              </div>
+              <!-- segunda fila-->
+              <div class="form-row mb-2">
+                <div class="input-group-md col-md-3">
+                  <label for="inputRegion1">Región</label>
+                  <select (change)="onChangeRegion($event)" class="custom-select" class="form-control" id="inputRegion1"
+                    formControlName="nuevoRegion">
+                    <option *ngFor="let v of listaRegiones;" [value]="v.Nombre">{{v.Nombre}}</option>
+                  </select>
+                </div>
+                <div class="input-group-md col-md-3">
+                  <label for="inputComuna">Comuna</label>
+                  <select class="custom-select" class="form-control" id="inputComuna" formControlName="nuevoComuna">
+                    <option *ngFor="let r of listaComunas;" [value]="r.Nombre">{{r.Nombre}}</option>
+                  </select>
+                </div>
+                <div class="input-group-md col-md-6">
+                  <label for="inputDireccion">Dirección</label>
+                  <input type="text" class="form-control" id="inputDireccion" placeholder="Dirección"
+                    formControlName="nuevoDireccion" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
+                </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="input-group-md col-md-2">
+                  
+                  <label for="inputGiro">Giro</label>
+                  <input class="form-control" id="inputGiro" list="listaGirosStr" formControlName="nuevoGiro" name="lista"/>
+                  <datalist id="listaGirosStr">
+                    <option *ngFor="let item of listaGirosStr" [value]="item">{{item}}</option>
+                 </datalist>
+<!--                   <select class="custom-select" class="form-control" id="inputGiro" formControlName="nuevoGiro">
+                    <option *ngFor="let r of listaGiros;" [value]="r.Nombre">{{r.Nombre}}</option>
+                  </select> -->
+                  <!-- <input type="text" (keyup)="getUserIdsFirstWay($event)" class="form-control" id="inputGiro" list="listaGiros" formControlName="nuevoGiro"/> -->
+<!--                   <datalist id="dynmicGirosIds">
+                     <option *ngFor="let item of userList1" [value]="item.Nombre">{{item.Nombre}}</option>
+                  </datalist> -->
+<!--                   <select class="custom-select" class="form-control" id="inputGiro" formControlName="nuevoGiro">
+                    <option *ngFor="let r of userList1;" [value]="r.Nombre">{{r.Nombre}}</option>
+                  </select> -->
+                </div>
+                <div class="input-group-md col-md-1">
+                  <label for="btnGiro">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" id="btnGiro" style="margin-top: 28px; float: left;" (click)="mostrarGiro(true)">Nuevo</button>
+                </div>
+                <!-- para agregar nuevo giro-->
+                <div class="input-group-md col-md-2" *ngIf="verGiro">
+                  <label for="inputNuevoGiro">Nombre nuevo giro</label>
+                  <input type="text" class="form-control" placeholder="Nuevo Giro" aria-label="Nuevo Giro"
+                    aria-describedby="basic-addon2" id="nuevoGiroGuardar" (keydown)="this.utiles.UpperCaseF($event)" maxlength="200" style="border-color: chocolate;">
+                  <div class="input-group-append" style="float: right;">
+                    <button class="btn btn-outline-primary" type="button" (click)="mostrarGiro(false)" style="margin-top: 2px;">Cerrar</button>
+                    <button class="btn btn-outline-secondary" type="button" (click)="insertarGiro()" style="margin-top: 2px;margin-left: 2px;">Guardar</button>
+                  </div>
+                </div>
+                <!--                      -->
+                <div class="input-group-md col-md-4">
+                  <label for="inputTelefonos">Contacto</label>
+                  <input type="text" class="form-control" id="inputContacto" formControlName="nuevoContacto" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
+                </div>
+                <div class="input-group-md col-md-3">
+                  <label for="inputCorreo">Correo</label>
+                  <input type="text" class="form-control" id="inputCorreo" formControlName="nuevoCorreo" placeholder="Correo" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
+                </div>          
+              </div>
+              <div class="form-row mb-2">
+                <div class="input-group-md col-md-6">
+                  <label for="inputTelefonos">Teléfono</label>
+                  <input type="text" class="form-control" id="inputTelefonos" formControlName="nuevoTelefonos" maxlength="12">
+                </div>
+                <div class="input-group-md col-md-6">
+                  <label for="inputFax">Fax</label>
+                  <input type="text" class="form-control" id="inputFax" formControlName="nuevoFax" maxlength="12">
+                </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="input-group-md col-md-4">
+                  <label for="inputFleteLocal">Flete Local</label>
+                  <input type="number" class="form-control" id="inputFleteLocal" formControlName="nuevoFleteLocal" min="0" max="100000">
+                </div>
+                <div class="input-group-md col-md-4">
+                  <label for="inputFleteDomicilio">Flete Domicilio</label>
+                  <input type="number" class="form-control" id="inputFleteDomicilio" formControlName="nuevoFleteDomicilio" min="0" max="200000">
+                </div>
+                <div class="input-group-md col-md-4">
+                  <label for="inputDescuento">Descuento %</label>
+                  <input type="number" class="form-control" id="inputDescuento" formControlName="nuevoDescuento" placeholder="Descuento" min="0" max="100">
+                </div>          
+              </div>
+            </form>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" (click)="guardar()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--modal desactivar o activar-->
+<!-- Modal desactivar -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true" *ngIf="usuDesactivarActivar">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Desactivar Usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Está seguro de desactivar al Usuario {{usuDesactivarActivar.Persona.Nombres}} {{usuDesactivarActivar.Persona.ApellidoPaterno}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="desactivar()">SI</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal activar -->
+<div class="modal fade" id="exampleModalCenter1" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true" *ngIf="usuDesactivarActivar">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Activar Usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Está seguro de activar al Usuario {{usuDesactivarActivar.Persona.Nombres}} {{usuDesactivarActivar.Persona.ApellidoPaterno}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="activar()">SI</button>
+      </div>
+    </div>
+  </div>
+</div>

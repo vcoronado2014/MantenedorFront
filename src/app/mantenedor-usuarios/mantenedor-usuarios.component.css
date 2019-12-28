@@ -1,0 +1,21 @@
+.container-app{
+    margin-top: 52px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.modal-dialog {
+    max-width: 90%;
+    margin: 1.75rem auto;
+}
+ol div {
+    background-color: black;
+}
+.dataTables_wrapper .no-footer{
+    width: 100%;
+    padding: 20px;
+}
+body {
+    /* min-height: 100%; */
+    margin: 0;
+}

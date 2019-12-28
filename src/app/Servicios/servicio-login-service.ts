@@ -25,7 +25,7 @@ export class ServicioLoginService{
   login(usuario, clave) {
 
     let url = environment.API_ENDPOINT + 'login';
-    let dataGet = { Usuario: usuario, Password: clave };
+    let dataGet = { usuario: usuario, password: clave };
 
 
     return this.http.post(url, dataGet, { headers: new Headers({ 'Content-Type': 'application/json' }) })
