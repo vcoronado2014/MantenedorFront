@@ -19,7 +19,8 @@ import { DISABLED } from '@angular/forms/src/model';
 import { CompleterService, CompleterData } from 'ng2-completer';
 import { DataTableDirective } from 'angular-datatables';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-
+//dialog
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 
 declare var $:any;
 
@@ -76,13 +77,13 @@ export class ClientesComponent implements OnInit, OnDestroy {
     private toastr: ToastsManager,
     public completerService: CompleterService,
     public utiles: UtilesService,
+    public dialog: MatDialog,
     private _vcr: ViewContainerRef
   ) { 
     this.toastr.setRootViewContainerRef(_vcr);
   }
 
   ngOnInit() {
-
     if (sessionStorage.getItem("USER_LOGUED_IN")){
       var usuarioLogueado = JSON.parse(sessionStorage.getItem("USER_LOGUED_IN"));
       if (usuarioLogueado.AutentificacionUsuario){
@@ -96,16 +97,47 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.obtenerRegiones(this.nodIdLogueado);
     this.obtenerGiros(this.nodIdLogueado);
     this.cargarClientes(this.nodIdLogueado);
-    this.cols = [
-      { field: 'Id', header: 'Id' },
-      { field: 'NomClient', header: 'Nombre' },
-      { field: 'RutClient', header: 'Rut' },
-      { field: 'DirClient', header: 'Direccion' }
-  ];
+/*     this.cols = [
+      { field: 'Id', header: 'Id', display: 'none', hidden: true },
+      { field: 'NomClient', header: 'Nombre', display: 'table-cell', hidden: false },
+      { field: 'RutClient', header: 'Rut', display: 'none', hidden: true },
+      { field: 'DigClient', header: 'Dv', display: 'none', hidden: true },
+      { field: 'GirClient', header: 'Giro', display: 'none', hidden: true },
+      { field: 'CiuClient', header: 'Ciudad', display: 'table-cell', hidden: false },
+      { field: 'ComClient', header: 'Comuna', display: 'table-cell', hidden: false },
+      { field: 'DirClient', header: 'Direccion', display: 'table-cell', hidden: false },
+      { field: 'TelClient', header: 'Teléfono', display: 'none', hidden: true },
+      { field: 'ConClient', header: 'Contacto', display: 'none', hidden: true },
+      { field: 'CorrClient', header: 'Correo', display: 'none', hidden: true }
+  ]; */
 
-
+    
     this.cargarForma(); 
 
+  }
+  buscarRut(rut, dv){
+    var cliente = null;
+    if (this.persons && this.persons.length >= 0){
+      this.persons.forEach(clienteArr => {
+        if (clienteArr.RutClient.toUpperCase() == rut.toUpperCase() && clienteArr.DigClient.toUpperCase() == dv.toUpperCase()){
+          cliente = clienteArr;
+        }
+      });
+    }
+    return cliente;    
+  }
+  limpiar(){
+    this.editando = false;
+    this.forma.reset({});
+    //nodo del usuario
+    //this.obtenerNodos(false, this.nodIdLogueado);
+    this.forma.controls.nuevoRegion.setValue("Seleccione");
+    this.obtenerComunas("Seleccione", null);
+    this.usuarioEditando = null;
+    this.ausIdEditando = 0;
+    this.forma.controls.nuevoRut.enable();
+    this.forma.controls.nuevoDig.enable();
+    this.tituloModal = 'Creando usuario';
   }
 
   rerender() {
@@ -117,17 +149,92 @@ export class ClientesComponent implements OnInit, OnDestroy {
       this.dtTrigger.next();
     });
   }
+
+  rerenderNod(nodId) {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      this.dtOptions = this.utiles.InicializeOptionsDT(this.dtOptions, 8);
+      this.loading = true;
+      this.gajico.postClientesArr(nodId, null, null).subscribe((data: User[]) => {
+        this.persons = data;
+        this.dtTrigger.next();
+        this.loading = false;
+      });
+    });
+  }
   cargarClientes(nodId){
     this.loading = true;
-    this.gajico.postClientesArr(nodId).subscribe((data: User[]) => {
+    this.gajico.postClientesArr(nodId, null, null).subscribe((data: User[]) => {
       this.persons = data;
       this.dtTrigger.next();
       this.loading = false;
     });
   }
+
+  keyDowEnter(event){
+    console.log(event);
+    var rut = this.forma.controls.nuevoRut.value;
+    var dv = this.forma.controls.nuevoDig.value;
+    var elementos = {
+      Rut: rut,
+      Dv: dv
+    }
+    //ambos elementos deben existir para realizar la llamada
+    if (rut && rut.length > 0 && dv && dv.length > 0){
+      //ahora realizamos la busqueda
+      var cliente;
+      this.loading = true;
+      this.gajico.postClientesArr(this.nodIdLogueado, rut, dv).subscribe((data: User[]) => {
+        //revisamos si la data viene correcta
+        if (data && data.length == 1){
+          //el usuario existe
+          //this.usuarioEditando = data[0];
+          //preguntamos si desea recuperar los datos del cliente
+          //si dice que si entonces mostramos la info y seteamos al usuario editanto
+          cliente = data[0];
+          this.usuarioEditando = cliente;
+          this.editar(cliente);
+          this.loading = false;
+        }
+        else {
+          //el usuario no existe, deberiamos mandar el foco al nombre
+  
+          this.loading = false;
+        }
+        
+      });
+
+      console.log(elementos);
+    }
+
+  }
+  buscarCliente(nodId, rut, dv){
+    var cliente = null;
+    this.loading = true;
+    this.gajico.postClientesArr(nodId, rut, dv).subscribe((data: User[]) => {
+      //revisamos si la data viene correcta
+      if (data && data.length == 1){
+        //el usuario existe
+        //this.usuarioEditando = data[0];
+        //preguntamos si desea recuperar los datos del cliente
+        //si dice que si entonces mostramos la info y seteamos al usuario editanto
+        cliente = data[0];
+        this.loading = false;
+      }
+      else {
+        //el usuario no existe, deberiamos mandar el foco al nombre
+
+        this.loading = false;
+      }
+      
+    });
+    return cliente;
+  }
   cargarSinRender(nodId){
     this.loading = true;
-    this.gajico.postClientesArr(nodId).subscribe((data: User[]) => {
+    this.gajico.postClientesArr(nodId, null, null).subscribe((data: User[]) => {
       this.persons = data;
       this.loading = false;
     });
@@ -274,48 +381,85 @@ export class ClientesComponent implements OnInit, OnDestroy {
     }
   }
   seleccionar(usu){
-    this.usuDesactivarActivar = usu;
+    
+    var entidad = {
+      AusId: usu.Id,
+      Id: usu.Id,
+      Rut: usu.RutClient,
+      Dv: usu.DigClient,
+      Nombres: usu.NomClient.toUpperCase(),
+      Region: usu.CiuClient.toUpperCase(),
+      Giro: usu.GirClient.toUpperCase(),
+      Comuna: usu.ComClient.toUpperCase(),
+      Direccion: usu.DirClient.toUpperCase(),
+      Telefonos: usu.TelClient,
+      Contacto: usu.ConClient.toUpperCase(),
+      Correo: usu.CorreoClient.toUpperCase(),
+      Fax: usu.FaxClient,
+      FleteLocal: usu.FleLocal,
+      FleteDomicilio: usu.FleDomici,
+      Descuento: usu.DesClient
+    }
+    this.usuDesactivarActivar = entidad;
+    
   }
   activar(){
-    this.loading = true;
-    this.global.activarUsuario(this.usuDesactivarActivar.Nodo.Id, this.usuDesactivarActivar.AutentificacionUsuario.Id, "1").subscribe(
-      data => {
-        if (data) {
-          this.listaUsuarios = data.json();
+    if (this.usuDesactivarActivar && this.usuDesactivarActivar.Id > 0) {
+      this.usuDesactivarActivar.Eliminado = 0;
+      this.loading = true;
+      this.gajico.putCliente(this.usuDesactivarActivar).subscribe(
+        data => {
+          var cliente = data.json();
+          this.rerenderNod(this.nodIdLogueado);
+        },
+        err => {
+          console.error(err);
+          this.showToast('error', err, 'Error');
+          this.loading = false;
+
+        },
+        () => {
+          console.log('save completed');
+          this.showToast('success', 'Activado con éxito', 'Usuario');
+          //cierre del modal
+          this.utiles.CerrarModal($('#exampleModalCenter1'));
+          //$("#exampleModalCenter").modal("toggle");
+          this.loading = false;
+
         }
-      },
-      err => {
-        console.error(err);
-        this.loading = false;
-        this.showToast('error', err, 'Error');
-      },
-      () => {
-        this.loading = false;
-        console.log('get info Regiones');
-      }
-    );
-    $("#exampleModalCenter1").modal("toggle");
+      );
+    }
   }
   desactivar(){
-    this.loading = true;
-    this.global.activarUsuario(this.usuDesactivarActivar.Nodo.Id, this.usuDesactivarActivar.AutentificacionUsuario.Id, "0").subscribe(
-      data => {
-        if (data) {
-          this.listaUsuarios = data.json();
+
+    //antes verificamos que se encuentre seleccionado el usuario a desactivar
+    if (this.usuDesactivarActivar && this.usuDesactivarActivar.Id > 0) {
+      this.usuDesactivarActivar.Eliminado = 1;
+      this.loading = true;
+      this.gajico.putCliente(this.usuDesactivarActivar).subscribe(
+        data => {
+          var cliente = data.json();
+          this.rerenderNod(this.nodIdLogueado);
+        },
+        err => {
+          console.error(err);
+          this.showToast('error', err, 'Error');
+          this.loading = false;
+
+        },
+        () => {
+          console.log('save completed');
+          this.showToast('success', 'Eliminado con éxito', 'Usuario');
+          //cierre del modal
+          this.utiles.CerrarModal($('#exampleModalCenter'));
+          //$("#exampleModalCenter").modal("toggle");
+          this.loading = false;
+
         }
-      },
-      err => {
-        console.error(err);
-        this.loading = false;
-        this.showToast('error', err, 'Error');
-      },
-      () => {
-        this.loading = false;
-        console.log('get info Regiones');
-      }
-    );
-    $("#exampleModalCenter").modal("toggle");
+      );
+    }
   }
+
   guardar(){
     if (this.forma.valid){
       //correcto
@@ -389,30 +533,30 @@ export class ClientesComponent implements OnInit, OnDestroy {
       }
       var fleteLocal = '0';
       if (this.forma.controls.nuevoFleteLocal){
-        if (this.forma.controls.nuevoFleteLocal.value != null){
+        if (this.forma.controls.nuevoFleteLocal.value != null && String(this.forma.controls.nuevoFleteLocal.value) != ''){
           fleteLocal = String(this.forma.controls.nuevoFleteLocal.value);
         }
       }
       var fleteDomicilio = '0';
       if (this.forma.controls.nuevoFleteDomicilio){
-        if (this.forma.controls.nuevoFleteDomicilio.value != null){
+        if (this.forma.controls.nuevoFleteDomicilio.value != null && String(this.forma.controls.nuevoFleteDomicilio.value) != ''){
           fleteDomicilio = String(this.forma.controls.nuevoFleteDomicilio.value);
         }
       }
       var descuento = '0';
       if (this.forma.controls.nuevoDescuento){
-        if (this.forma.controls.nuevoDescuento.value != null){
+        if (this.forma.controls.nuevoDescuento.value != null && String(this.forma.controls.nuevoDescuento.value) != ''){
           descuento = String(this.forma.controls.nuevoDescuento.value);
         }
       }
 
-      if (String(this.forma.controls.nuevoComuna.value) == ''){
+      if (String(this.forma.controls.nuevoComuna.value) == '' || String(this.forma.controls.nuevoComuna.value) == 'Seleccione'){
         return this.showToast('error', 'Seleccione Comuna', 'Requerido');
       }
       if (String(this.forma.controls.nuevoGiro.value) == ''){
         return this.showToast('error', 'Seleccione Giro', 'Requerido');
       }
-      if (String(this.forma.controls.nuevoRegion.value) == ''){
+      if (String(this.forma.controls.nuevoRegion.value) == '' || String(this.forma.controls.nuevoRegion.value) == 'Seleccione'){
         return this.showToast('error', 'Seleccione Región', 'Requerido');
       }
       //ahora creamos la entidad a enviar
@@ -421,17 +565,18 @@ export class ClientesComponent implements OnInit, OnDestroy {
         AusId: this.ausIdEditando,
         Rut: rut,
         Dv: dv,
-        Nombres: nombres,
-        Region: ciudad,
-        Giro: giro,
-        Comuna: comuna,
-        Direccion: direccion,
+        Nombres: nombres.toUpperCase(),
+        Region: ciudad.toUpperCase(),
+        Giro: giro.toUpperCase(),
+        Comuna: comuna.toUpperCase(),
+        Direccion: direccion.toUpperCase(),
         Telefonos: telefonos,
-        Contacto: contacto,
-        Correo: correo,
+        Contacto: contacto.toUpperCase(),
+        Correo: correo.toUpperCase(),
         Fax: fax,
         FleteLocal: fleteLocal,
         FleteDomicilio: fleteDomicilio,
+        Eliminado: 0,
         Descuento: descuento
       }
       this.loading = true;
@@ -439,7 +584,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
         data => {
           var cliente = data.json();
           //push a la lista
-          this.persons = this.utiles.InsertaReemplazaElemento(cliente, this.persons);
+          //this.persons = this.utiles.InsertaReemplazaElemento(cliente, this.persons);
+          //this.rerender();
+          this.rerenderNod(this.nodIdLogueado);
         },
         err => {
           console.error(err);
@@ -449,6 +596,8 @@ export class ClientesComponent implements OnInit, OnDestroy {
         },
         () => {
           console.log('save completed');
+          //this.cargarSinRender(this.nodIdLogueado);
+          //this.rerender();
           this.showToast('success', 'Guardado con éxito', 'Usuario');
           //cierre del modal
           this.utiles.CerrarModal($('#modalEdicion'));
@@ -466,10 +615,10 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.forma.reset({});
     this.tituloModal = 'Creando Usuario';
     //nodo del usuario
-    this.obtenerNodos(false, this.nodIdLogueado);
-    this.forma.controls.nuevoNombreUsuario.enable();
-    this.forma.controls.nuevoNodo.setValue(this.nodIdLogueado); 
-    this.forma.controls.nuevoUsuarioRegion.setValue(0);
+    //this.obtenerNodos(false, this.nodIdLogueado);
+    this.forma.controls.nuevoRut.enable();
+    this.forma.controls.nuevoDig.enable();
+    this.forma.controls.nuevoRegion.setValue("Seleccione");
 
   }
   //metodos de obtención
@@ -579,7 +728,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
   onChangeRegion(event){
     console.log(event.target.value);
     this.obtenerComunas(event.target.value, null);
-    this.forma.controls.nuevoUsuarioComuna.setValue('Seleccione');
+    this.forma.controls.nuevoComuna.setValue('Seleccione');
   }
 
   showToast(tipo, mensaje, titulo){
@@ -598,4 +747,5 @@ export class ClientesComponent implements OnInit, OnDestroy {
 
   }
 }
+
 

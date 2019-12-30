@@ -70,6 +70,7 @@ export class UtilesService{
           };
           return dtOptions;
       }
+
       InsertaReemplazaElemento(nuevoElemento, arreglo){
         var esta = false;
         if (arreglo && arreglo.length >= 0){
@@ -95,7 +96,25 @@ export class UtilesService{
             }
           });
           if (esta == false){
-            arreglo.push(nuevoElemento);
+            var cliente = {
+              Id: nuevoElemento.Id,
+              CiuClient: nuevoElemento.CiuClient,
+              ComClient: nuevoElemento.ComClient,
+              DigClient: nuevoElemento.DigClient,
+              DirClient: nuevoElemento.DirClient,
+              Eliminado: nuevoElemento.Eliminado,
+              FaxClient: nuevoElemento.FaxClient,
+              GirClient: nuevoElemento.GirClient,
+              NomClient: nuevoElemento.NomClient,
+              RutClient: nuevoElemento.RutClient,
+              TelClient: nuevoElemento.TelClient,
+              CorreoClient: nuevoElemento.CorreoClient,
+              FleLocal: nuevoElemento.FleLocal,
+              FleDomici: nuevoElemento.FleDomici,
+              DesClient: nuevoElemento.DesClient
+            }
+
+            arreglo.push(cliente);
           }
         }
         return arreglo;

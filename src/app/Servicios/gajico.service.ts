@@ -49,10 +49,12 @@ export class GajicoService{
 
 
     }
-    postClientesArr(instId): Observable<User[]>{
+    postClientesArr(instId, rut, dv): Observable<User[]>{
         let url = environment.API_ENDPOINT + 'Cliente';
         let dataGet = {
-            InstId: instId
+            InstId: instId,
+            Rut: rut,
+            Dv: dv
         }
         return this.http.post(url, dataGet, {
             headers: new Headers({ 'Content-Type': 'application/json' })

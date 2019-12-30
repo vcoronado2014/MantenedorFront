@@ -20,6 +20,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
 import {CdkTableModule} from '@angular/cdk/table';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
@@ -34,6 +35,7 @@ import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
 //servicios
 import { ServicioLoginService } from './servicios/servicio-login-service';
 import { GlobalService } from './servicios/global.service';
@@ -78,6 +80,8 @@ import { ClientesComponent } from './clientes/clientes.component';
     PaginatorModule,
     DropdownModule,
     InputTextModule,
+    ButtonModule,
+    MatDialogModule,
     ToastModule.forRoot(),
     NgxLoadingModule.forRoot({}),
     appRouting
