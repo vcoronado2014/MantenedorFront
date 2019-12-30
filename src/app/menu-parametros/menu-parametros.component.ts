@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from "@angular/router";
 
 @Component({
-  selector: 'app-inicio',
-  templateUrl: './inicio.component.html',
-  styleUrls: ['./inicio.component.css']
+  selector: 'app-menu-parametros',
+  templateUrl: './menu-parametros.component.html',
+  styleUrls: ['./menu-parametros.component.css']
 })
-export class InicioComponent implements OnInit {
+export class MenuParametrosComponent implements OnInit {
 
   constructor(
     private router: Router
@@ -32,14 +32,6 @@ export class InicioComponent implements OnInit {
   }
   abrirProveedores(){
     this.router.navigateByUrl('/proveedores')
-    .then(data => console.log(data),
-      error =>{
-        console.log(error);
-      }
-    )
-  }
-  abrirConfig(){
-    this.router.navigateByUrl('/parametros')
     .then(data => console.log(data),
       error =>{
         console.log(error);

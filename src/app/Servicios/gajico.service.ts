@@ -95,6 +95,29 @@ export class GajicoService{
         });
         return repos;
     }
+    //proveedores
+    postProveedorArr(instId, rut, dv): Observable<Proveedor[]>{
+        let url = environment.API_ENDPOINT + 'Proveedor';
+        let dataGet = {
+            InstId: instId,
+            Rut: rut,
+            Dv: dv
+        }
+        return this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        }).map((response) => {
+            return response.json();
+        });
+    }
+    putProveedor(proveedor) {
+        let url = environment.API_ENDPOINT + 'Proveedor';
+        let dataGet = proveedor;
+
+        let repos = this.http.put(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return repos;
+    }
    
 }
 //creacion de la interface
@@ -116,4 +139,19 @@ export interface User {
     FleLocal: string;
     FleDomici: string;
     DesClient: string;
+  }
+  export interface Proveedor {
+    RutProved: string;
+    DigProved: string;
+    NomProved: string;
+    GirProved: string;
+    DirProved: string;
+    ComProved: string;
+    CiuProved: string;
+    TelProved: string;
+    FaxProved: string;
+    AneProved: string;
+    Id: number;
+    Eliminado: number;
+    CorreoProved: string;
   }

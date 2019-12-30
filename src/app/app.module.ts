@@ -45,6 +45,8 @@ import { MantenedorUsuariosComponent } from './mantenedor-usuarios/mantenedor-us
 import { InicioComponent } from './inicio/inicio.component';
 import { HeaderAppComponent } from './header-app/header-app.component';
 import { ClientesComponent } from './clientes/clientes.component';
+import { ProveedorComponent } from './proveedor/proveedor.component';
+import { MenuParametrosComponent } from './menu-parametros/menu-parametros.component';
 
 
 @NgModule({
@@ -57,7 +59,9 @@ import { ClientesComponent } from './clientes/clientes.component';
     MantenedorUsuariosComponent,
     InicioComponent,
     HeaderAppComponent,
-    ClientesComponent
+    ClientesComponent,
+    ProveedorComponent,
+    MenuParametrosComponent
   ],
   imports: [
     BrowserModule,

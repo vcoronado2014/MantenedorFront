@@ -6,9 +6,9 @@
       <div class="d-flex w-100 justify-content-between breadcrumb">
           <ol class="breadcrumb">
               <li class="breadcrumb-item" aria-current="page">MENU</li>
-              <li class="breadcrumb-item active" aria-current="page">Clientes</li>
+              <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
           </ol>
-          <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Cliente</button>
+          <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Proveedor</button>
       </div>
 
       <div class="grid" style="padding: 20px;">
@@ -29,12 +29,12 @@
           <tbody>
             <tr *ngFor="let person of persons">
               <td>{{ person.Id }}</td>
-              <td>{{ person.RutClient }}-{{ person.DigClient }}</td>
-              <td>{{ person.NomClient }}</td>
-              <td>{{ person.TelClient }}</td>
-              <td>{{ person.CiuClient }}</td>
-              <td>{{ person.ComClient }}</td>
-              <td>{{ person.DirClient }}</td>
+              <td>{{ person.RutProved }}-{{ person.DigProved }}</td>
+              <td>{{ person.NomProved }}</td>
+              <td>{{ person.TelProved }}</td>
+              <td>{{ person.CiuProved }}</td>
+              <td>{{ person.ComProved }}</td>
+              <td>{{ person.DirProved }}</td>
               <td>
                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion" (click)="editar(person)">Editar</button>
               </td>
@@ -113,23 +113,13 @@
                   <datalist id="listaGirosStr">
                     <option *ngFor="let item of listaGirosStr" [value]="item">{{item}}</option>
                  </datalist>
-<!--                   <select class="custom-select" class="form-control" id="inputGiro" formControlName="nuevoGiro">
-                    <option *ngFor="let r of listaGiros;" [value]="r.Nombre">{{r.Nombre}}</option>
-                  </select> -->
-                  <!-- <input type="text" (keyup)="getUserIdsFirstWay($event)" class="form-control" id="inputGiro" list="listaGiros" formControlName="nuevoGiro"/> -->
-<!--                   <datalist id="dynmicGirosIds">
-                     <option *ngFor="let item of userList1" [value]="item.Nombre">{{item.Nombre}}</option>
-                  </datalist> -->
-<!--                   <select class="custom-select" class="form-control" id="inputGiro" formControlName="nuevoGiro">
-                    <option *ngFor="let r of userList1;" [value]="r.Nombre">{{r.Nombre}}</option>
-                  </select> -->
                 </div>
                 <div class="input-group-md col-md-1">
                   <label for="btnGiro">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
                   <button class="btn btn-outline-secondary btn-sm" type="button" id="btnGiro" style="margin-top: 28px; float: left;" (click)="mostrarGiro(true)">Nuevo</button>
                 </div>
                 <!-- para agregar nuevo giro-->
-                <div class="input-group-md col-md-2" *ngIf="verGiro">
+                <div class="input-group-md col-md-4" *ngIf="verGiro">
                   <label for="inputNuevoGiro">Nombre nuevo giro</label>
                   <input type="text" class="form-control" placeholder="Nuevo Giro" aria-label="Nuevo Giro"
                     aria-describedby="basic-addon2" id="nuevoGiroGuardar" (keydown)="this.utiles.UpperCaseF($event)" maxlength="200" style="border-color: chocolate;">
@@ -138,12 +128,7 @@
                     <button class="btn btn-outline-secondary" type="button" (click)="insertarGiro()" style="margin-top: 2px;margin-left: 2px;">Guardar</button>
                   </div>
                 </div>
-                <!--                      -->
                 <div class="input-group-md col-md-4">
-                  <label for="inputTelefonos">Contacto</label>
-                  <input type="text" class="form-control" id="inputContacto" formControlName="nuevoContacto" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
-                </div>
-                <div class="input-group-md col-md-3">
                   <label for="inputCorreo">Correo</label>
                   <input type="text" class="form-control" id="inputCorreo" formControlName="nuevoCorreo" placeholder="Correo" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
                 </div>          
@@ -157,20 +142,6 @@
                   <label for="inputFax">Fax</label>
                   <input type="text" class="form-control" id="inputFax" formControlName="nuevoFax" maxlength="12">
                 </div>
-              </div>
-              <div class="form-row mb-2">
-                <div class="input-group-md col-md-4">
-                  <label for="inputFleteLocal">Flete Local</label>
-                  <input type="number" class="form-control" id="inputFleteLocal" formControlName="nuevoFleteLocal" min="0" max="100000">
-                </div>
-                <div class="input-group-md col-md-4">
-                  <label for="inputFleteDomicilio">Flete Domicilio</label>
-                  <input type="number" class="form-control" id="inputFleteDomicilio" formControlName="nuevoFleteDomicilio" min="0" max="200000">
-                </div>
-                <div class="input-group-md col-md-4">
-                  <label for="inputDescuento">Descuento %</label>
-                  <input type="number" class="form-control" id="inputDescuento" formControlName="nuevoDescuento" placeholder="Descuento" min="0" max="100">
-                </div>          
               </div>
             </form>
           </div>
@@ -198,13 +169,13 @@
   <div class="modal-dialog modal-dialog-centered" role="document" style="width: 50%;">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title" id="exampleModalLongTitle">Desactivar Usuario</h3>
+        <h3 class="modal-title" id="exampleModalLongTitle">Desactivar Proveedor</h3>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <h4><strong>Está seguro de desactivar al Usuario {{this.usuDesactivarActivar.NomClient}} </strong> </h4>
+        <h4><strong>Está seguro de desactivar al Proveedor {{this.usuDesactivarActivar.NomProved}} </strong> </h4>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
@@ -220,13 +191,13 @@
   <div class="modal-dialog modal-dialog-centered" role="document" style="width: 50%;">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title" id="exampleModalLongTitle">Activar Usuario</h3>
+        <h3 class="modal-title" id="exampleModalLongTitle">Activar Proveedor</h3>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <h4><strong>Está seguro de activar al Usuario {{usuDesactivarActivar.NomClient}} </strong></h4>
+        <h4><strong>Está seguro de activar al Proveedor {{usuDesactivarActivar.NomProved}} </strong></h4>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>

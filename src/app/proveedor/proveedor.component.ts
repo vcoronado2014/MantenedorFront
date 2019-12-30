@@ -12,7 +12,7 @@ import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 //servicios
 import { GlobalService } from '../servicios/global.service';
-import { GajicoService, User } from '../servicios/gajico.service';
+import { GajicoService, Proveedor } from '../servicios/gajico.service';
 import { UtilesService } from '../servicios/utiles.service';
 import { DISABLED } from '@angular/forms/src/model';
 //completer
@@ -25,27 +25,20 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 declare var $:any;
 
 @Component({
-  selector: 'app-clientes',
-  templateUrl: './clientes.component.html',
-  styleUrls: ['./clientes.component.css']
+  selector: 'app-proveedor',
+  templateUrl: './proveedor.component.html',
+  styleUrls: ['./proveedor.component.css']
 })
-export class ClientesComponent implements OnInit, OnDestroy {
+export class ProveedorComponent implements OnInit, OnDestroy {
   @ViewChild(DataTableDirective)
   
   dtElement: DataTableDirective;
   //dtOptions: DataTables.Settings = {};
   dtOptions: any = {};
-  persons: User[] = [];
+  persons: Proveedor[] = [];
     // We use this trigger because fetching the list of persons can be quite long,
   // thus we ensure the data is fetched before rendering
   dtTrigger: Subject<any> = new Subject();
-
-  //nueva implemnentacion tables
-  cols: any[];
-
-  listaUsuarios = [];
-  user;
-  users: User[];
 
   verGiro=false;
   editando=false;
@@ -104,7 +97,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
     var cliente = null;
     if (this.persons && this.persons.length >= 0){
       this.persons.forEach(clienteArr => {
-        if (clienteArr.RutClient.toUpperCase() == rut.toUpperCase() && clienteArr.DigClient.toUpperCase() == dv.toUpperCase()){
+        if (clienteArr.RutProved.toUpperCase() == rut.toUpperCase() && clienteArr.DigProved.toUpperCase() == dv.toUpperCase()){
           cliente = clienteArr;
         }
       });
@@ -122,7 +115,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.ausIdEditando = 0;
     this.forma.controls.nuevoRut.enable();
     this.forma.controls.nuevoDig.enable();
-    this.tituloModal = 'Creando usuario';
+    this.tituloModal = 'Creando proveedor';
   }
 
   rerender() {
@@ -142,7 +135,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
       // Call the dtTrigger to rerender again
       this.dtOptions = this.utiles.InicializeOptionsDT(this.dtOptions, 8);
       this.loading = true;
-      this.gajico.postClientesArr(nodId, null, null).subscribe((data: User[]) => {
+      this.gajico.postProveedorArr(nodId, null, null).subscribe((data: Proveedor[]) => {
         this.persons = data;
         this.dtTrigger.next();
         this.loading = false;
@@ -151,7 +144,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
   }
   cargarClientes(nodId){
     this.loading = true;
-    this.gajico.postClientesArr(nodId, null, null).subscribe((data: User[]) => {
+    this.gajico.postProveedorArr(nodId, null, null).subscribe((data: Proveedor[]) => {
       this.persons = data;
       this.dtTrigger.next();
       this.loading = false;
@@ -171,13 +164,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
       //ahora realizamos la busqueda
       var cliente;
       this.loading = true;
-      this.gajico.postClientesArr(this.nodIdLogueado, rut, dv).subscribe((data: User[]) => {
+      this.gajico.postProveedorArr(this.nodIdLogueado, rut, dv).subscribe((data: Proveedor[]) => {
         //revisamos si la data viene correcta
         if (data && data.length == 1){
-          //el usuario existe
-          //this.usuarioEditando = data[0];
-          //preguntamos si desea recuperar los datos del cliente
-          //si dice que si entonces mostramos la info y seteamos al usuario editanto
           cliente = data[0];
           this.usuarioEditando = cliente;
           this.editar(cliente);
@@ -198,13 +187,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
   buscarCliente(nodId, rut, dv){
     var cliente = null;
     this.loading = true;
-    this.gajico.postClientesArr(nodId, rut, dv).subscribe((data: User[]) => {
+    this.gajico.postProveedorArr(nodId, rut, dv).subscribe((data: Proveedor[]) => {
       //revisamos si la data viene correcta
       if (data && data.length == 1){
-        //el usuario existe
-        //this.usuarioEditando = data[0];
-        //preguntamos si desea recuperar los datos del cliente
-        //si dice que si entonces mostramos la info y seteamos al usuario editanto
         cliente = data[0];
         this.loading = false;
       }
@@ -217,13 +202,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
     });
     return cliente;
   }
-  cargarSinRender(nodId){
-    this.loading = true;
-    this.gajico.postClientesArr(nodId, null, null).subscribe((data: User[]) => {
-      this.persons = data;
-      this.loading = false;
-    });
-  }
+
   ngOnDestroy(): void {
     // Do not forget to unsubscribe the event
     this.dtTrigger.unsubscribe();
@@ -317,12 +296,8 @@ export class ClientesComponent implements OnInit, OnDestroy {
       'nuevoComuna': new FormControl('', Validators.required),
       'nuevoDireccion': new FormControl('', Validators.required),
       'nuevoTelefonos': new FormControl(''),
-      'nuevoContacto': new FormControl(''),
       'nuevoCorreo': new FormControl('', [Validators.pattern("[^ @]*@[^ @]*")]),
-      'nuevoFax': new FormControl(''),
-      'nuevoFleteLocal': new FormControl(''),
-      'nuevoFleteDomicilio': new FormControl(''),
-      'nuevoDescuento': new FormControl('')
+      'nuevoFax': new FormControl('')
     });
 
     console.log(this.forma.valid + ' ' + this.forma.status);
@@ -335,30 +310,24 @@ export class ClientesComponent implements OnInit, OnDestroy {
       this.editando = true;
       this.ausIdEditando = usu.Id;
       //this.cargarForma();
-      this.tituloModal = 'Editando a ' + usu.NomClient;
+      this.tituloModal = 'Editando a ' + usu.NomProved;
       this.usuarioEditando = usu;
       //cargamos los combos
-      //nodo del usuario
-      //this.obtenerNodos(false, this.usuarioEditando.Nodo.Id);
       //comuna del usuario
-      this.obtenerComunas(this.usuarioEditando.CiuClient, null);
+      this.obtenerComunas(this.usuarioEditando.CiuProved, null);
       //setear los campos
       //this.forma.controls.nuevoNombreUsuario
       this.forma.setValue({
-        nuevoRut: this.usuarioEditando.RutClient,
-        nuevoDig: this.usuarioEditando.DigClient,
-        nuevoNombre: this.usuarioEditando.NomClient,
-        nuevoRegion: this.usuarioEditando.CiuClient,
-        nuevoGiro: this.usuarioEditando.GirClient,
-        nuevoComuna: this.usuarioEditando.ComClient,
-        nuevoDireccion: this.usuarioEditando.DirClient,
-        nuevoTelefonos: this.usuarioEditando.TelClient,
-        nuevoContacto: this.usuarioEditando.ConClient,
-        nuevoCorreo: this.usuarioEditando.CorreoClient,
-        nuevoFax: this.usuarioEditando.FaxClient,
-        nuevoFleteLocal: this.usuarioEditando.FleLocal,
-        nuevoFleteDomicilio: this.usuarioEditando.FleDomici,
-        nuevoDescuento: this.usuarioEditando.DesClient,
+        nuevoRut: this.usuarioEditando.RutProved,
+        nuevoDig: this.usuarioEditando.DigProved,
+        nuevoNombre: this.usuarioEditando.NomProved,
+        nuevoRegion: this.usuarioEditando.CiuProved,
+        nuevoGiro: this.usuarioEditando.GirProved,
+        nuevoComuna: this.usuarioEditando.ComProved,
+        nuevoDireccion: this.usuarioEditando.DirProved,
+        nuevoTelefonos: this.usuarioEditando.TelProved,
+        nuevoCorreo: this.usuarioEditando.CorreoProved,
+        nuevoFax: this.usuarioEditando.FaxProved,
       });
       //deshabilitamos
       this.forma.controls.nuevoRut.disable();
@@ -370,20 +339,16 @@ export class ClientesComponent implements OnInit, OnDestroy {
     var entidad = {
       AusId: usu.Id,
       Id: usu.Id,
-      Rut: usu.RutClient,
-      Dv: usu.DigClient,
-      Nombres: usu.NomClient.toUpperCase(),
-      Region: usu.CiuClient.toUpperCase(),
-      Giro: usu.GirClient.toUpperCase(),
-      Comuna: usu.ComClient.toUpperCase(),
-      Direccion: usu.DirClient.toUpperCase(),
-      Telefonos: usu.TelClient,
-      Contacto: usu.ConClient.toUpperCase(),
-      Correo: usu.CorreoClient.toUpperCase(),
-      Fax: usu.FaxClient,
-      FleteLocal: usu.FleLocal,
-      FleteDomicilio: usu.FleDomici,
-      Descuento: usu.DesClient
+      Rut: usu.RutProved,
+      Dv: usu.DigProved,
+      Nombres: usu.NomProved.toUpperCase(),
+      Region: usu.CiuProved.toUpperCase(),
+      Giro: usu.GirProved.toUpperCase(),
+      Comuna: usu.ComProved.toUpperCase(),
+      Direccion: usu.DirProved.toUpperCase(),
+      Telefonos: usu.TelProved,
+      Correo: usu.CorreoProved.toUpperCase(),
+      Fax: usu.FaxProved
     }
     this.usuDesactivarActivar = entidad;
     
@@ -392,7 +357,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
     if (this.usuDesactivarActivar && this.usuDesactivarActivar.Id > 0) {
       this.usuDesactivarActivar.Eliminado = 0;
       this.loading = true;
-      this.gajico.putCliente(this.usuDesactivarActivar).subscribe(
+      this.gajico.putProveedor(this.usuDesactivarActivar).subscribe(
         data => {
           var cliente = data.json();
           this.rerenderNod(this.nodIdLogueado);
@@ -405,7 +370,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
         },
         () => {
           console.log('save completed');
-          this.showToast('success', 'Activado con éxito', 'Cliente');
+          this.showToast('success', 'Activado con éxito', 'Proveedor');
           //cierre del modal
           this.utiles.CerrarModal($('#exampleModalCenter1'));
           //$("#exampleModalCenter").modal("toggle");
@@ -421,7 +386,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
     if (this.usuDesactivarActivar && this.usuDesactivarActivar.Id > 0) {
       this.usuDesactivarActivar.Eliminado = 1;
       this.loading = true;
-      this.gajico.putCliente(this.usuDesactivarActivar).subscribe(
+      this.gajico.putProveedor(this.usuDesactivarActivar).subscribe(
         data => {
           var cliente = data.json();
           this.rerenderNod(this.nodIdLogueado);
@@ -434,7 +399,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
         },
         () => {
           console.log('save completed');
-          this.showToast('success', 'Eliminado con éxito', 'Cliente');
+          this.showToast('success', 'Eliminado con éxito', 'Proveedor');
           //cierre del modal
           this.utiles.CerrarModal($('#exampleModalCenter'));
           //$("#exampleModalCenter").modal("toggle");
@@ -498,12 +463,6 @@ export class ClientesComponent implements OnInit, OnDestroy {
           telefonos = String(this.forma.controls.nuevoTelefonos.value);
         }
       }
-      var contacto = '';
-      if (this.forma.controls.nuevoContacto){
-        if (this.forma.controls.nuevoContacto.value != null){
-          contacto = String(this.forma.controls.nuevoContacto.value);
-        }
-      }
       var correo = '';
       if (this.forma.controls.nuevoCorreo){
         if (this.forma.controls.nuevoCorreo.value != null){
@@ -514,24 +473,6 @@ export class ClientesComponent implements OnInit, OnDestroy {
       if (this.forma.controls.nuevoFax){
         if (this.forma.controls.nuevoFax.value != null){
           fax = String(this.forma.controls.nuevoFax.value);
-        }
-      }
-      var fleteLocal = '0';
-      if (this.forma.controls.nuevoFleteLocal){
-        if (this.forma.controls.nuevoFleteLocal.value != null && String(this.forma.controls.nuevoFleteLocal.value) != ''){
-          fleteLocal = String(this.forma.controls.nuevoFleteLocal.value);
-        }
-      }
-      var fleteDomicilio = '0';
-      if (this.forma.controls.nuevoFleteDomicilio){
-        if (this.forma.controls.nuevoFleteDomicilio.value != null && String(this.forma.controls.nuevoFleteDomicilio.value) != ''){
-          fleteDomicilio = String(this.forma.controls.nuevoFleteDomicilio.value);
-        }
-      }
-      var descuento = '0';
-      if (this.forma.controls.nuevoDescuento){
-        if (this.forma.controls.nuevoDescuento.value != null && String(this.forma.controls.nuevoDescuento.value) != ''){
-          descuento = String(this.forma.controls.nuevoDescuento.value);
         }
       }
 
@@ -556,21 +497,14 @@ export class ClientesComponent implements OnInit, OnDestroy {
         Comuna: comuna.toUpperCase(),
         Direccion: direccion.toUpperCase(),
         Telefonos: telefonos,
-        Contacto: contacto.toUpperCase(),
         Correo: correo.toUpperCase(),
         Fax: fax,
-        FleteLocal: fleteLocal,
-        FleteDomicilio: fleteDomicilio,
-        Eliminado: 0,
-        Descuento: descuento
+        Eliminado: 0
       }
       this.loading = true;
-      this.gajico.putCliente(entidad).subscribe(
+      this.gajico.putProveedor(entidad).subscribe(
         data => {
           var cliente = data.json();
-          //push a la lista
-          //this.persons = this.utiles.InsertaReemplazaElemento(cliente, this.persons);
-          //this.rerender();
           this.rerenderNod(this.nodIdLogueado);
         },
         err => {
@@ -581,9 +515,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
         },
         () => {
           console.log('save completed');
-          //this.cargarSinRender(this.nodIdLogueado);
-          //this.rerender();
-          this.showToast('success', 'Guardado con éxito', 'Cliente');
+          this.showToast('success', 'Guardado con éxito', 'Proveedor');
           //cierre del modal
           this.utiles.CerrarModal($('#modalEdicion'));
           this.loading = false;
@@ -598,7 +530,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
   crear(){
     this.editando = false;
     this.forma.reset({});
-    this.tituloModal = 'Creando Cliente';
+    this.tituloModal = 'Creando Proveedor';
     //nodo del usuario
     //this.obtenerNodos(false, this.nodIdLogueado);
     this.forma.controls.nuevoRut.enable();

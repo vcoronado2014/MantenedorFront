@@ -9,6 +9,8 @@ import { Router } from "@angular/router";
 export class HeaderAppComponent implements OnInit {
   usuario;
   logueado = false;
+  titulo: string = '';
+  subtitulo: string = '';
   constructor(
     private router: Router
   ) {
@@ -22,7 +24,10 @@ export class HeaderAppComponent implements OnInit {
         this.logueado = true;
 
       }
-
+      if (this.usuario.Institucion){
+        this.titulo = this.usuario.Institucion.Titulo;
+        this.subtitulo = this.usuario.Institucion.Subtitulo;
+      }
     }
   }
   salir(){

@@ -1,6 +1,10 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
     <div class="container" style="max-width: 100%;">
+      <div class="col-2">
+        <h6 style="color:#78C2AD;">{{usuario.Institucion.Titulo}}</h6>
+        <h5 style="color:#78C2AD;">{{usuario.Institucion.Subtitulo}}</h5>
+      </div>
       <a class="navbar-brand">{{usuario.Persona.Nombres}} {{usuario.Persona.ApellidoPaterno}}</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -10,20 +14,20 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              Administración
+              MENU PRINCIPAL
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" [routerLink]="['../usuarios']">Ventas</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" [routerLink]="['../clientes']">Clientes</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" [routerLink]="['../inicio']">Proveedores</a>
+              <a class="dropdown-item" [routerLink]="['../proveedores']">Proveedores</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" [routerLink]="['../inicio']">Arriendos</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" [routerLink]="['../inicio']">Alertas</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" [routerLink]="['../inicio']">Configuraciones</a>
+              <a class="dropdown-item" [routerLink]="['../parametros']">Configuraciones</a>
             </div>
           </li>
           <li class="nav-item" [routerLink]="['../inicio']">
