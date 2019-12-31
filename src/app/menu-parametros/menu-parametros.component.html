@@ -8,9 +8,9 @@
             <li class="breadcrumb-item active" aria-current="page">Configuraciones</li>
         </ol>
     </div>
-  
+    <!-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion" (click)="editar(person)">Editar</button> -->
     <div class="row" style="padding:2%; width: 100%;">
-      <div class="col-6 col-md-4 padding-card">
+      <div class="col-6 col-md-4 padding-card"  data-toggle="modal" data-target="#modalEdicion" (click)="cargarDatosInstitucion()">
         <div class="card" style="cursor: pointer;">
           <!-- <img class="card-img-top" src="./assets/img/user.png" alt="Card image cap"> -->
           <i class="fa fa-shopping-cart fa-5x text-center margin-icon"></i>
@@ -38,5 +38,125 @@
     </div>
   
   </section>
+  <!-- aca los modals -->
+  <!-- Modal institucion -->
+<div class="modal fade" id="modalEdicion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 70%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modificando mi Institución</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- contenido del formulario -->
+        <div class="col-md-12 ">
+          <form [formGroup]="forma" (ngSubmit)="guardarContratante()">
+            <!-- primera fila-->
+            <div class="form-row mb-3">
+              <div class="input-group-md col-md-3">
+                <label for="inputRut">Rut</label>
+                <input type="text" class="form-control" id="inputRut" placeholder="Rut"
+                  formControlName="nuevoRut" maxlength="9">
+              </div>
+              <div class="input-group-md col-md-1">
+                <label for="inputDig">DV</label>
+                <input type="text" class="form-control" id="inputDig" placeholder=""
+                  formControlName="nuevoDig" (keydown)="this.utiles.UpperCaseF($event)" maxlength="1">
+              </div>
+              <div class="input-group-md col-md-8">
+                <label for="inputNombre">Nombres</label>
+                <input type="text" class="form-control" id="inputNombre" placeholder="Nombres"
+                  formControlName="nuevoNombre" maxlength="250">
+              </div>
+            </div>
+            <!-- segunda fila-->
+            <div class="form-row mb-3">
+              <div class="input-group-md col-md-3">
+                <label for="inputRegion1">Región</label>
+                <select (change)="onChangeRegion($event)" class="custom-select" class="form-control" id="inputRegion1"
+                  formControlName="nuevoRegion">
+                  <option *ngFor="let v of listaRegiones;" [value]="v.Nombre">{{v.Nombre}}</option>
+                </select>
+              </div>
+              <div class="input-group-md col-md-3">
+                <label for="inputComuna">Comuna</label>
+                <select class="custom-select" class="form-control" id="inputComuna" formControlName="nuevoComuna">
+                  <option *ngFor="let r of listaComunas;" [value]="r.Nombre">{{r.Nombre}}</option>
+                </select>
+              </div>
+              <div class="input-group-md col-md-6">
+                <label for="inputDireccion">Dirección</label>
+                <input type="text" class="form-control" id="inputDireccion" placeholder="Dirección"
+                  formControlName="nuevoDireccion" maxlength="250">
+              </div>
+            </div>
+            <div class="form-row mb-3">
+              <div class="input-group-md col-md-2">
+                
+                <label for="inputGiro">Giro</label>
+                <input class="form-control" id="inputGiro" list="listaGirosStr" formControlName="nuevoGiro" name="lista"/>
+                <datalist id="listaGirosStr">
+                  <option *ngFor="let item of listaGirosStr" [value]="item">{{item}}</option>
+               </datalist>
+              </div>
+              <div class="input-group-md col-md-1">
+                <label for="btnGiro">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <button class="btn btn-outline-secondary btn-sm" type="button" id="btnGiro" style="margin-top: 28px; float: left;" (click)="mostrarGiro(true)">Nuevo</button>
+              </div>
+              <!-- para agregar nuevo giro-->
+              <div class="input-group-md col-md-4" *ngIf="verGiro">
+                <label for="inputNuevoGiro">Nombre nuevo giro</label>
+                <input type="text" class="form-control" placeholder="Nuevo Giro" aria-label="Nuevo Giro"
+                  aria-describedby="basic-addon2" id="nuevoGiroGuardar" (keydown)="this.utiles.UpperCaseF($event)" maxlength="200" style="border-color: chocolate;">
+                <div class="input-group-append" style="float: right;">
+                  <button class="btn btn-outline-primary" type="button" (click)="mostrarGiro(false)" style="margin-top: 2px;">Cerrar</button>
+                  <button class="btn btn-outline-secondary" type="button" (click)="insertarGiro()" style="margin-top: 2px;margin-left: 2px;">Guardar</button>
+                </div>
+              </div>
+              <div class="input-group-md col-md-4">
+                <label for="inputCorreo">Correo</label>
+                <input type="text" class="form-control" id="inputCorreo" formControlName="nuevoCorreo" placeholder="Correo" maxlength="250">
+              </div>          
+            </div>
+            <div class="form-row mb-3">
+              <div class="input-group-md col-md-6">
+                <label for="inputTelefonos">Teléfono</label>
+                <input type="text" class="form-control" id="inputTelefonos" formControlName="nuevoTelefonos" maxlength="12">
+              </div>
+              <div class="input-group-md col-md-6">
+                <label for="inputFax">Fax</label>
+                <input type="text" class="form-control" id="inputFax" formControlName="nuevoFax" maxlength="12">
+              </div>
+            </div>
+            <div class="form-row mb-3">
+              <div class="input-group-md col-md-6">
+                <label for="inputTitulo">Titulo</label>
+                <input type="text" class="form-control" id="inputTitulo" formControlName="nuevoTitulo" maxlength="250">
+              </div>
+              <div class="input-group-md col-md-6">
+                <label for="inputSubtitulo">Subtitulo</label>
+                <input type="text" class="form-control" id="inputSubtitulo" formControlName="nuevoSubtitulo" maxlength="250">
+              </div>
+            </div>
+          </form>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <div class="row" style="width: 100%;">
+          <div class="col-4 text-left">
+            
+          </div>
+          <div class="col-8 text-right">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" (click)="guardarInstitucion()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 

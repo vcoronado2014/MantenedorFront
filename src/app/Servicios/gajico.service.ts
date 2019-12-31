@@ -118,6 +118,15 @@ export class GajicoService{
         });
         return repos;
     }
+    putInstitucion(institucion) {
+        let url = environment.API_ENDPOINT + 'Institucion';
+        let dataGet = institucion;
+
+        let repos = this.http.put(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return repos;
+    }
    
 }
 //creacion de la interface
