@@ -1,0 +1,159 @@
+<app-header-app></app-header-app>
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<section class="container-app">
+  <!--contenido informativo antes de la lista de usuarios -->
+
+      <div class="d-flex w-100 justify-content-between breadcrumb">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item" aria-current="page">MENU</li>
+              <li class="breadcrumb-item active" aria-current="page">Productos</li>
+          </ol>
+          <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Producto</button>
+      </div>
+
+      <div class="grid" style="padding: 20px;">
+        <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Codigo</th>
+              <th>Nombre</th>
+              <th>Valor</th>
+              <th>Stock</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let person of persons">
+              <td>{{ person.Id }}</td>
+              <td>{{ person.CodProduc }}</td>
+              <td>{{ person.NomProduc }}</td>
+              <td>{{ person.ValProduc }}</td>
+              <td>{{ person.StoProduc }}</td>
+              <td>
+
+                <button style="float: right;" *ngIf="person.Eliminado == 0" type="button" class="btn btn-danger" data-toggle="modal"
+                    data-target="#exampleModalCenter" (click)="seleccionar(person)">
+                    <i title="Desactivar" class="fas fa-window-close"></i>
+                </button>
+                <button style="float: right;" *ngIf="person.Eliminado == 1" type="button" class="btn btn-info" data-toggle="modal"
+                    data-target="#exampleModalCenter1" (click)="seleccionar(person)">
+                    <i title="Activar" class="fas fa-check"></i>
+                </button>                
+                <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion"
+                    (click)="editar(person)">Editar</button>
+              </td>
+            </tr>
+          </tbody>
+          </table>
+      </div>
+
+</section>
+<!-- Modal -->
+<div class="modal fade" id="modalEdicion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{tituloModal}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- contenido del formulario -->
+          <div class="col-md-12 ">
+            <form [formGroup]="forma" (ngSubmit)="guardarContratante()">
+              <!-- primera fila-->
+              <div class="form-row mb-3">
+                <div class="input-group-md col-md-4">
+                  <label for="inputCodigo">Código</label>
+                  <input type="text" class="form-control" id="inputCodigo" placeholder="Código" (focusout)="keyDowEnter($event)" (keydown)="this.utiles.UpperCaseF($event)"
+                    formControlName="nuevoCodigo" maxlength="9">
+                </div>
+                <div class="input-group-md col-md-8">
+                  <label for="inputNombre">Nombre Producto</label>
+                  <input type="text" class="form-control" id="inputNombre" placeholder="Nombres"
+                    formControlName="nuevoNombre" (keydown)="this.utiles.UpperCaseF($event)" maxlength="200">
+                </div>
+              </div>
+              <!-- segunda fila-->
+              <div class="form-row mb-3">
+                <div class="input-group-md col-md-4">
+                    <label for="inputStockInicial">Stock Inicial</label>
+                    <input type="number" class="form-control" id="inputStockInicial" placeholder="0" formControlName="nuevoStockInicial"
+                        maxlength="10">
+                </div>
+                <div class="input-group-md col-md-4">
+                    <label for="inputStockActual">Stock Actual</label>
+                    <input type="number" class="form-control" id="inputStockActual" placeholder="0" formControlName="nuevoStockActual"
+                        maxlength="10">
+                </div>
+                <div class="input-group-md col-md-4">
+                    <label for="inputValor">Valor</label>
+                    <input type="number" class="form-control" id="inputValor" placeholder="0" formControlName="nuevoValor"
+                        maxlength="10">
+                </div>                                
+              </div>
+            </form>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <div class="row" style="width: 100%;">
+            <div class="col-4 text-left">
+              <button type="button" class="btn btn-info" (click)="limpiar()">Limpiar</button>
+            </div>
+            <div class="col-8 text-right">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button type="button" class="btn btn-primary" (click)="guardar()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!--modal desactivar o activar-->
+<!-- Modal desactivar -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+aria-hidden="true" *ngIf="usuDesactivarActivar">
+<div class="modal-dialog modal-dialog-centered" role="document" style="width: 50%;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="exampleModalLongTitle">Desactivar Producto</h3>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <h4><strong>Está seguro de desactivar el Producto {{this.usuDesactivarActivar.NomProduc}} </strong> </h4>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+      <button type="button" class="btn btn-primary" (click)="desactivar()">SI</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal activar -->
+<div class="modal fade" id="exampleModalCenter1" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+aria-hidden="true" *ngIf="usuDesactivarActivar">
+<div class="modal-dialog modal-dialog-centered" role="document" style="width: 50%;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="exampleModalLongTitle">Activar Producto</h3>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <h4><strong>Está seguro de activar al Producto {{usuDesactivarActivar.NomProduc}} </strong></h4>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+      <button type="button" class="btn btn-primary" (click)="activar()">SI</button>
+    </div>
+  </div>
+</div>
+</div>

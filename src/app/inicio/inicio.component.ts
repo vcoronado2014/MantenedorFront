@@ -46,5 +46,20 @@ export class InicioComponent implements OnInit {
       }
     )
   }
-
+  abrirProductos(){
+    this.router.navigateByUrl('/productos')
+    .then(data => console.log(data),
+      error =>{
+        console.log(error);
+      }
+    )
+  }
+  abrirFacturas(){
+    this.router.navigateByUrl('/facturas')
+    .then(data => console.log(data),
+      error =>{
+        console.log(error);
+      }
+    )
+  }
 }

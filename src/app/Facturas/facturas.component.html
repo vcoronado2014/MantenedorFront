@@ -1,0 +1,228 @@
+<app-header-app></app-header-app>
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<section class="container-app">
+  <!--contenido informativo antes de la lista de usuarios -->
+
+      <div class="d-flex w-100 justify-content-between breadcrumb">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item" aria-current="page">MENU</li>
+              <li class="breadcrumb-item active" aria-current="page">Facturas</li>
+          </ol>
+          <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Producto</button>
+      </div>
+
+      <div class="grid" style="padding: 20px;">
+        <div class="jumbotron jumbotron-fluid" style="padding: 1rem;">
+            <div class="container">
+              <h1 class="display-5">Búsqueda</h1>
+              <!-- <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p> -->
+              <div class="row">
+                  <div class="col-xs-12 col-md-3">
+                    <label for="exampleInputEmail1">Fecha Inicio</label>
+                    <input matInput [matDatepicker]="picker" [max]="maxDate" placeholder="Fecha inicio" [value]="fechaInicio" id="exampleInputEmail1" (dateChange)="addEventInicio($event)">
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                  </div>
+                  <div class="col-xs-12 col-md-3">
+                    <label for="exampleInputEmail2">Fecha Término</label>
+                    <input matInput [matDatepicker]="picker2" [max]="maxDate" placeholder="Fecha término" [value]="fechaTermino" id="exampleInputEmail2" (dateChange)="addEventTermino($event)">
+                    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                  </div>
+                  <div class="col-xs-12 col-md-1">
+                    <button type="button" class="btn btn-primary" (click)="buscarPorFechas()">Buscar</button>
+                  </div>
+              </div>
+            </div>
+          </div>
+        <h6>Mostrando desde el {{fechaInicio}} al {{fechaTermino}}</h6>
+        <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border hover" style="width:100%" id="#myTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th></th>
+              <th>Rut</th>
+              <th>Numero</th>
+              <th>Fecha</th>
+              <th>Valor</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody *ngIf="!loading">
+            <tr *ngFor="let person of persons">
+              <td>{{ person.Factura.Id }}</td>
+              <td orderable="false" data-toggle="modal" data-target="#exampleModalCenter" (click)="seleccionarFactura(person.Factura, person.Detalle, person.Cliente, person)" class="details-control" id="detail-btn">
+                  <i class="fa fa-angle-right fa-2x text-center"></i>
+              </td>
+              <td>{{ person.Factura.RutFactur }}-{{ person.Factura.DigFactur }}</td>
+              <td>{{ person.Factura.NumFactur }}</td>
+              <td>{{ person.Factura.FeeFactur }}</td>
+              <td>{{ person.Factura.ValFactur | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</td>
+              <!-- <td>{{ person.Factura.ValFactur | currencyFormat }}</td> -->
+              <td>
+
+                <button style="float: right;" *ngIf="person.Factura.Eliminado == 0" type="button" class="btn btn-danger" data-toggle="modal"
+                    data-target="#exampleModalCenter" (click)="seleccionar(person)">
+                    <i title="Desactivar" class="fas fa-window-close"></i>
+                </button>
+                <button style="float: right;" *ngIf="person.Factura.Eliminado == 1" type="button" class="btn btn-info" data-toggle="modal"
+                    data-target="#exampleModalCenter1" (click)="seleccionar(person)">
+                    <i title="Activar" class="fas fa-check"></i>
+                </button>                
+                <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion"
+                    (click)="editar(person)">Editar</button>
+              </td>
+            </tr>
+          </tbody>
+            <tfoot *ngIf="!loading">
+                <tr style="font-size: 1.2em;">
+                    <th colspan="6" style="text-align:right">Total:</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+          </table>
+      </div>
+
+</section>
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="width: 70%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLongTitle">Factura Nº {{this.facturaSeleccionada.NumFactur}}</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="jumbotron jumbotron-fluid" style="padding: 1rem;">
+            <div class="container">
+              <h1 class="display-5">Factura</h1>
+              <!-- <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p> -->
+              <!-- FILA 1-->
+            <div class="row" style="font-size: 1.3em;">
+                <div class="col-xs-12 col-md-3 borde-fac text-center">
+                    <label text-center>Número Factura</label>
+                </div>
+                <div class="col-xs-12 col-md-3 borde-fac text-center">
+                    <label>Fecha Emisión</label>
+                </div>
+                <div class="col-xs-12 col-md-6 borde-fac text-center">
+                    <label>Rut Cliente</label>
+                </div>
+            
+            </div>
+            <div class="row" style="font-size: 1.3em;">
+                <div class="col-xs-12 col-md-3 borde-fac-det text-center">
+                    <span>{{this.facturaSeleccionada.NumFactur}}</span>
+                </div>
+                <div class="col-xs-12 col-md-3 borde-fac-det text-center">
+                    <span>{{this.facturaSeleccionada.FeeFactur}}</span>
+                </div>
+                <div class="col-xs-12 col-md-6 borde-fac-det text-center">
+                    <span>{{this.clienteSeleccionado.RutClient}}-{{this.clienteSeleccionado.DigClient}}</span>
+                </div>
+            </div>
+            <!-- FIN FILA 1-->
+            <!-- FILA 2 -->
+            <div class="row" style="font-size: 1.3em;">
+                <div class="col-xs-12 col-md-8 borde-fac text-center">
+                    <label text-center>Nombre o Razón Social</label>
+                </div>
+                <div class="col-xs-12 col-md-4 borde-fac text-center">
+                    <label>Giro</label>
+                </div>
+            </div>
+            <div class="row" style="font-size: 1.3em;">
+                <div class="col-xs-12 col-md-8 borde-fac-det text-center">
+                    <span>{{this.clienteSeleccionado.NomClient}}</span>
+                </div>
+                <div class="col-xs-12 col-md-4 borde-fac-det text-center">
+                    <span>{{this.clienteSeleccionado.GirClient}}</span>
+                </div>
+            </div>
+            <!-- FIN FILA 2 -->
+            <!-- FILA 3-->
+            <div class="row" style="font-size: 1.3em;">
+                <div class="col-xs-12 col-md-7 borde-fac text-center">
+                    <label text-center>Dirección</label>
+                </div>
+                <div class="col-xs-12 col-md-3 borde-fac text-center">
+                    <label>Comuna</label>
+                </div>
+                <div class="col-xs-12 col-md-2 borde-fac text-center">
+                    <label>Condición Vta.</label>
+                </div>
+            
+            </div>
+            <div class="row" style="font-size: 1.3em;">
+                <div class="col-xs-12 col-md-7 borde-fac-det text-center">
+                    <span>{{this.clienteSeleccionado.DirClient}}</span>
+                </div>
+                <div class="col-xs-12 col-md-3 borde-fac-det text-center">
+                    <span>{{this.clienteSeleccionado.ComClient}}</span>
+                </div>
+                <div class="col-xs-12 col-md-2 borde-fac-det text-center">
+                    <span>{{this.utiles.retornaCondicionVenta(this.facturaSeleccionada.ConFactur)}}</span>
+                </div>
+            </div>
+            <!-- FIN FILA 3-->
+            </div>
+          </div>
+        <div class="jumbotron jumbotron-fluid" style="padding: 1rem;">
+            <div class="container">
+                <h1 class="display-5">Detalle</h1>
+                <!-- aca la tabla del detalle -->
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">Artículo</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Volumen</th>
+                        <th scope="col">Precio Unitario</th>
+                        <th scope="col">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let dett of this.detalleSeleccionado">
+                        <th>{{ dett.ProDetall }}</th>
+                        <th>{{ dett.NomProduc }}</th>
+                        <th>{{ dett.VolDetall }}</th>
+                        <th class="text-right">{{ dett.PreDetall | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
+                        <th class="text-right">{{ dett.NetDetall | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr style="color: #5a5a5a;">
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>NETO</th>
+                            <th class="text-right">{{this.sumarNetos(this.detalleSeleccionado) | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th>
+                        </tr>
+                        <tr style="color: #5a5a5a;">
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>IVA</th>
+                            <th class="text-right">{{this.calculaImpuesto(this.facturaSeleccionada.ValFactur, this.sumarNetos(this.detalleSeleccionado)) | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th>
+                        </tr>
+                        <tr style="color: #5a5a5a;">
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>TOTAL</th>
+                            <th class="text-right">{{this.facturaSeleccionada.ValFactur | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th>
+                        </tr>
+                    </tfoot>
+                  </table>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        
+      </div>
+    </div>
+  </div>
+</div>

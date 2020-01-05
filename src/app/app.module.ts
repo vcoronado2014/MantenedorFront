@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 //import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http'; 
@@ -21,6 +21,9 @@ import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material';
 import {CdkTableModule} from '@angular/cdk/table';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
@@ -47,6 +50,10 @@ import { HeaderAppComponent } from './header-app/header-app.component';
 import { ClientesComponent } from './clientes/clientes.component';
 import { ProveedorComponent } from './proveedor/proveedor.component';
 import { MenuParametrosComponent } from './menu-parametros/menu-parametros.component';
+import { ProductosComponent } from './productos/productos.component';
+import { FacturasComponent } from './facturas/facturas.component';
+//pipes
+import { CurrencyFormat } from './pipes/CurrencyFormat'
 
 
 @NgModule({
@@ -61,7 +68,10 @@ import { MenuParametrosComponent } from './menu-parametros/menu-parametros.compo
     HeaderAppComponent,
     ClientesComponent,
     ProveedorComponent,
-    MenuParametrosComponent
+    MenuParametrosComponent,
+    ProductosComponent,
+    FacturasComponent,
+    CurrencyFormat,
   ],
   imports: [
     BrowserModule,
@@ -74,6 +84,7 @@ import { MenuParametrosComponent } from './menu-parametros/menu-parametros.compo
     MatTableModule,
     MatPaginatorModule,
     MatIconModule,
+    MatDatepickerModule,
     CdkTableModule,
     HttpClientModule,
     HttpModule,
@@ -86,12 +97,16 @@ import { MenuParametrosComponent } from './menu-parametros/menu-parametros.compo
     InputTextModule,
     ButtonModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatNativeDateModule,
     ToastModule.forRoot(),
     NgxLoadingModule.forRoot({}),
     appRouting
     //NgbModule
   ],
   providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-CL' },
+    MatDatepickerModule,
     ServicioLoginService,
     GlobalService,
     GajicoService,

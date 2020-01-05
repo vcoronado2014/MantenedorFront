@@ -127,6 +127,40 @@ export class GajicoService{
         });
         return repos;
     }
+    //productos
+    postProductosArr(instId, codigoBuscar): Observable<Productos[]>{
+        let url = environment.API_ENDPOINT + 'Productos';
+        let dataGet = {
+            InstId: instId,
+            CodigoBuscar: codigoBuscar
+        }
+        return this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        }).map((response) => {
+            return response.json();
+        });
+    }
+    putProductos(producto) {
+        let url = environment.API_ENDPOINT + 'Productos';
+        let dataGet = producto;
+
+        let repos = this.http.put(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return repos;
+    }
+    postFacturaArr(fechaInicio, fechaTermino): Observable<Factura[]>{
+        let url = environment.API_ENDPOINT + 'Factura';
+        let dataGet = {
+            FechaInicio: fechaInicio,
+            FechaTermino: fechaTermino
+        }
+        return this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        }).map((response) => {
+            return response.json();
+        });
+    }
    
 }
 //creacion de la interface
@@ -163,4 +197,57 @@ export interface User {
     Id: number;
     Eliminado: number;
     CorreoProved: string;
+  }
+  export interface Productos {
+    CodProduc: string;
+    NomProduc: string;
+    EstProduc: string;
+    VolProduc: string;
+    ValProduc: string;
+    StoProduc: string;
+    ArrProduc: string;
+    PreProduc: string;
+    GarProduc: string;
+    Id: number;
+    Eliminado: number;
+  }
+  export interface Factura {
+    TipFactur: string;
+    NumFactur: string;
+    RutFactur: string;
+    DigFactur: string;
+    FeeFactur: string;
+    ValFactur: string;
+    EstFactur: string;
+    ConFactur: string;
+    GuiFactur: string;
+    SalFactur: string;
+    FesFactur: string;
+    CheFactur: string;
+    BanFactur: string;
+    FveFactur: string;
+    FevFactur: string;
+    Id: number;
+    Eliminado: number;
+    Detalle: Detalle[];
+    Cliente: User;
+  }
+  export interface Detalle{
+    TipDetall: string;
+    NumDetall: string;
+    CanDetall: string;
+    VolDetall: string;
+    ProDetall: string;
+    RecDetall: string;
+    PreDetall: string;
+    NetDetall: string;
+    IvaDetall: string;
+    CilDetall: string;
+    DiaDetall: string;
+    ArrDetall: string;
+    CafDetall: string;
+    MofDetall: string;
+    NomProduc: string;
+    Id: number;
+    Eliminado: number;
   }

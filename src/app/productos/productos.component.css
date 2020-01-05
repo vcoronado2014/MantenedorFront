@@ -1,0 +1,50 @@
+.container-app{
+    margin-top: 70px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.example-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+  }
+  
+  .mat-table {
+    overflow: auto;
+    max-height: 500px;
+  }
+  .dataTables_wrapper .no-footer{
+    width: 100%;
+    padding: 20px;
+    }
+    .modal-dialog {
+        max-width: 70%;
+        margin: 1.75rem auto;
+    }
+    .mdl-data-table {
+      position: relative;
+      border: 1px solid rgba(0,0,0,.12);
+      border-collapse: collapse;
+      white-space: nowrap;
+      font-size: 14px; 
+      background-color: #fff;
+  }
+  .breadcrumb {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    list-style: none;
+    background-color: #4caf50;
+    border-radius: 0.4rem;
+    font-size: 1.4em;
+}
+
+  @media (min-width: 1200px){
+    .container {
+      max-width: 100%;
+    }
+  }
