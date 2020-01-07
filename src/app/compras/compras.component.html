@@ -6,7 +6,7 @@
       <div class="d-flex w-100 justify-content-between breadcrumb">
           <ol class="breadcrumb">
               <li class="breadcrumb-item" aria-current="page">MENU</li>
-              <li class="breadcrumb-item active" aria-current="page">Ventas</li>
+              <li class="breadcrumb-item active" aria-current="page">Compras</li>
           </ol>
           <button type="button" class="btn btn-sm btn-primary" *ngIf="rolIdLogueado == 1 || rolIdLogueado == 2" data-toggle="modal" data-target="#modalEdicion" (click)="crear()">Nuevo Producto</button>
       </div>
@@ -52,8 +52,14 @@
           <tbody *ngIf="!loading">
             <tr *ngFor="let person of persons">
               <td>{{ person.Factura.Id }}</td>
-              <td orderable="false" data-toggle="modal" data-target="#exampleModalCenter" (click)="seleccionarFactura(person.Factura, person.Detalle, person.Cliente, person)" class="details-control" id="detail-btn">
+<!--               <td orderable="false" data-toggle="modal" data-target="#exampleModalCenter" (click)="seleccionarFactura(person.Factura, person.Detalle, person.Proveedor, person)" class="details-control" id="detail-btn">
                   <i class="fa fa-angle-right fa-2x text-center"></i>
+              </td> -->
+              <td orderable="false">
+                <button style="float: right;" *ngIf="person.Factura.Eliminado == 0" type="button" class="btn btn-danger" data-toggle="modal"
+                    data-target="#exampleModalCenter" (click)="seleccionarFactura(person.Factura, person.Detalle, person.Proveedor, person)">
+                    <i title="Desactivar" class="fas fa-angle-right"></i>
+                </button>
               </td>
               <td>{{ person.Factura.RutFactur }}-{{ person.Factura.DigFactur }}</td>
               <td>{{ person.Factura.NumFactur }}</td>
@@ -122,7 +128,7 @@
                     <span>{{this.facturaSeleccionada.FeeFactur}}</span>
                 </div>
                 <div class="col-xs-12 col-md-6 borde-fac-det text-center">
-                    <span>{{this.clienteSeleccionado.RutClient}}-{{this.clienteSeleccionado.DigClient}}</span>
+                    <span>{{this.clienteSeleccionado.RutProved}}-{{this.clienteSeleccionado.DigProved}}</span>
                 </div>
             </div>
             <!-- FIN FILA 1-->
@@ -137,10 +143,10 @@
             </div>
             <div class="row" style="font-size: 1.3em;">
                 <div class="col-xs-12 col-md-8 borde-fac-det text-center">
-                    <span>{{this.clienteSeleccionado.NomClient}}</span>
+                    <span>{{this.clienteSeleccionado.NomProved}}</span>
                 </div>
                 <div class="col-xs-12 col-md-4 borde-fac-det text-center">
-                    <span>{{this.clienteSeleccionado.GirClient}}</span>
+                    <span>{{this.clienteSeleccionado.GirProved}}</span>
                 </div>
             </div>
             <!-- FIN FILA 2 -->
@@ -159,10 +165,10 @@
             </div>
             <div class="row" style="font-size: 1.3em;">
                 <div class="col-xs-12 col-md-7 borde-fac-det text-center">
-                    <span>{{this.clienteSeleccionado.DirClient}}</span>
+                    <span>{{this.clienteSeleccionado.DirProved}}</span>
                 </div>
                 <div class="col-xs-12 col-md-3 borde-fac-det text-center">
-                    <span>{{this.clienteSeleccionado.ComClient}}</span>
+                    <span>{{this.clienteSeleccionado.ComProved}}</span>
                 </div>
                 <div class="col-xs-12 col-md-2 borde-fac-det text-center">
                     <span>{{this.utiles.retornaCondicionVenta(this.facturaSeleccionada.ConFactur)}}</span>

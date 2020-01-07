@@ -161,6 +161,18 @@ export class GajicoService{
             return response.json();
         });
     }
+    postCompraArr(fechaInicio, fechaTermino): Observable<Factura[]>{
+        let url = environment.API_ENDPOINT + 'Compra';
+        let dataGet = {
+            FechaInicio: fechaInicio,
+            FechaTermino: fechaTermino
+        }
+        return this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        }).map((response) => {
+            return response.json();
+        });
+    }
    
 }
 //creacion de la interface
@@ -231,6 +243,7 @@ export interface User {
     Eliminado: number;
     Detalle: Detalle[];
     Cliente: User;
+    Proveedor: Proveedor;
   }
   export interface Detalle{
     TipDetall: string;

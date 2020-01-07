@@ -52,6 +52,7 @@ import { ProveedorComponent } from './proveedor/proveedor.component';
 import { MenuParametrosComponent } from './menu-parametros/menu-parametros.component';
 import { ProductosComponent } from './productos/productos.component';
 import { FacturasComponent } from './facturas/facturas.component';
+import { ComprasComponent } from './compras/compras.component';
 //pipes
 import { CurrencyFormat } from './pipes/CurrencyFormat'
 
@@ -71,6 +72,7 @@ import { CurrencyFormat } from './pipes/CurrencyFormat'
     MenuParametrosComponent,
     ProductosComponent,
     FacturasComponent,
+    ComprasComponent,
     CurrencyFormat,
   ],
   imports: [

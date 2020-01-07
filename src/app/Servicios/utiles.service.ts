@@ -146,10 +146,7 @@ export class UtilesService{
 
               // Remove the formatting to get integer data for summation
               var intVal = function (i) {
-                return typeof i === 'string' ?
-                  i.replace(/[\$,.]/g, '') * 1 :
-                  typeof i === 'number' ?
-                    i : 0;
+                return typeof i == 'string' ? i.replace(/[\$,.]/g, '') * 1 : typeof i == 'number' ?  i : 0;
               };
 
               // Total over all pages
@@ -183,6 +180,15 @@ export class UtilesService{
 
               );
             }
+            //esto es para cambiar el color de fuente de la fila
+/*             ,
+            "createdRow": function (row, data, dataIndex){
+              //console.log($(row));
+              //console.log(data);
+              if (data[6] == 'Compra'){
+                $(row).addClass('red-class');
+              }
+            } */
 
           };
           return dtOptions;
@@ -199,6 +205,16 @@ export class UtilesService{
           retorno = 'No definida';
         }
 
+        return retorno;
+      }
+      retornaTipoFactura(tipo){
+        var retorno = '';
+        if (tipo == '2'){
+          retorno = 'Venta';
+        }
+        else{
+          retorno = 'Compra';
+        }
         return retorno;
       }
 

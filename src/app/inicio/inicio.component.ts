@@ -62,4 +62,12 @@ export class InicioComponent implements OnInit {
       }
     )
   }
+  abrirCompras(){
+    this.router.navigateByUrl('/compras')
+    .then(data => console.log(data),
+      error =>{
+        console.log(error);
+      }
+    )
+  }
 }

@@ -29,11 +29,11 @@ import * as moment from 'moment';
 
 
 @Component({
-  selector: 'app-facturas',
-  templateUrl: './facturas.component.html',
-  styleUrls: ['./facturas.component.css']
+  selector: 'app-compras',
+  templateUrl: './compras.component.html',
+  styleUrls: ['./compras.component.css']
 })
-export class FacturasComponent implements OnInit, OnDestroy {
+export class ComprasComponent implements OnInit, OnDestroy {
   @ViewChild(DataTableDirective)
   
   dtElement: DataTableDirective;
@@ -308,7 +308,7 @@ calculaImpuesto(total, neto){
                 // Call the dtTrigger to rerender again
                 this.dtOptions = this.utiles.InicializeOptionsDTFac(this.dtOptions, 8);
                 this.loading = true;
-                this.gajico.postFacturaArr(this.fechaInicio, this.fechaTermino).subscribe((data: Factura[]) => {
+                this.gajico.postCompraArr(this.fechaInicio, this.fechaTermino).subscribe((data: Factura[]) => {
                     this.persons = data;
                     this.dtTrigger.next();
                     this.loading = false;
@@ -324,7 +324,7 @@ calculaImpuesto(total, neto){
       // Call the dtTrigger to rerender again
       this.dtOptions = this.utiles.InicializeOptionsDTFac(this.dtOptions, 8);
       this.loading = true;
-      this.gajico.postFacturaArr(this.fechaInicio, this.fechaTermino).subscribe((data: Factura[]) => {
+      this.gajico.postCompraArr(this.fechaInicio, this.fechaTermino).subscribe((data: Factura[]) => {
         this.persons = data;
         this.dtTrigger.next();
         this.loading = false;
@@ -333,7 +333,7 @@ calculaImpuesto(total, neto){
   }
   cargarClientes(nodId){
     this.loading = true;
-    this.gajico.postFacturaArr(this.fechaInicio, this.fechaTermino).subscribe((data: Factura[]) => {
+    this.gajico.postCompraArr(this.fechaInicio, this.fechaTermino).subscribe((data: Factura[]) => {
       this.persons = data;
       this.dtTrigger.next();
       this.loading = false;
