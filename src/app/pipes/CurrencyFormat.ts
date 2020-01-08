@@ -16,6 +16,9 @@ export class CurrencyFormat{
         return currencySign+(decimalDelimiter ? num.replace('.', decimalDelimiter) : num).replace(new RegExp(result, 'g'), '$&' + chunkDelimiter);
     } */
     transform(value: string): string {
-        return value.replace(',', '.').replace(',', '.');
+        if (value){
+            return value.replace(',', '.').replace(',', '.');
+        }
+        
     }
 }

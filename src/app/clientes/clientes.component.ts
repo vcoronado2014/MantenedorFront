@@ -568,9 +568,6 @@ export class ClientesComponent implements OnInit, OnDestroy {
       this.gajico.putCliente(entidad).subscribe(
         data => {
           var cliente = data.json();
-          //push a la lista
-          //this.persons = this.utiles.InsertaReemplazaElemento(cliente, this.persons);
-          //this.rerender();
           this.rerenderNod(this.nodIdLogueado);
         },
         err => {

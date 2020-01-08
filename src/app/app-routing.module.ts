@@ -10,6 +10,7 @@ import { MenuParametrosComponent } from './menu-parametros/menu-parametros.compo
 import { ProductosComponent } from './productos/productos.component';
 import { FacturasComponent } from './facturas/facturas.component';
 import { ComprasComponent } from './compras/compras.component';
+import { FacturaVentaComponent } from './factura-venta/factura-venta.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -22,6 +23,7 @@ const routes: Routes = [
   { path: 'facturas', component: FacturasComponent },
   { path: 'compras', component: ComprasComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'factura-venta', component: FacturaVentaComponent },
   { path: '**', pathMatch:'full', redirectTo: 'home' }
 ];
 

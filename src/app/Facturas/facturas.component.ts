@@ -339,6 +339,14 @@ calculaImpuesto(total, neto){
       this.loading = false;
     });
   }
+  abrirVenta(){
+    this.router.navigateByUrl('/factura-venta')
+    .then(data => console.log(data),
+      error =>{
+        console.log(error);
+      }
+    )
+  }
 
 /*   keyDowEnter(event){
     console.log(event);

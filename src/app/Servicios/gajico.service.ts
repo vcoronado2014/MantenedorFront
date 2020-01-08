@@ -173,6 +173,82 @@ export class GajicoService{
             return response.json();
         });
     }
+    postBancos(instId) {
+        let url = environment.API_ENDPOINT + 'Banco';
+        let dataGet = {
+            InstId: instId
+        };
+
+        let data = this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return data;
+
+
+    }
+    putBanco(nombre) {
+        let url = environment.API_ENDPOINT + 'Banco';
+        let dataGet = {
+            Nombre: nombre
+        };
+
+        let repos = this.http.put(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return repos;
+    }
+    //siendo 1 = codigo_producto, 2 = nombre_producto
+    postTextos(tipoDocumento) {
+        let url = environment.API_ENDPOINT + 'ListadosPlanos';
+        let dataGet = {
+            TipoDocumento: tipoDocumento
+        };
+
+        let data = this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return data;
+    }
+    postParametros(instId) {
+        let url = environment.API_ENDPOINT + 'Parametros';
+        let dataGet = {
+            InstId: instId
+        };
+
+        let data = this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return data;
+    }
+    putParametros(id, instId, numeroDocumento, iva, stockMinimoCantidad, stockMinimoMetros) {
+        let url = environment.API_ENDPOINT + 'Parametros';
+        let dataGet = {
+            Id: id.toString(),
+            InstId: instId.toString(),
+            NumeroDocumento: numeroDocumento,
+            Iva: iva.toString(),
+            StockMinimoCantidad: stockMinimoCantidad.toString(),
+            StockMinimoMetros: stockMinimoMetros.toString()
+        };
+
+        let repos = this.http.put(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return repos;
+    }
+    postProductosTexto(instId, tipoBusqueda, texto) {
+        let url = environment.API_ENDPOINT + 'ObtenerProducto';
+        let dataGet = {
+            InstId: instId,
+            TipoBusqueda: tipoBusqueda.toString(),
+            CodigoBuscar: texto
+        };
+
+        let data = this.http.post(url, dataGet, {
+            headers: new Headers({ 'Content-Type': 'application/json' })
+        });
+        return data;
+    }
    
 }
 //creacion de la interface

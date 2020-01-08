@@ -1,0 +1,299 @@
+<app-header-app></app-header-app>
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<section class="container-app">
+    <div class="d-flex w-100 justify-content-between breadcrumb" style="padding-bottom: 0;margin-bottom: 0;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" aria-current="page">MENU</li>
+            <li class="breadcrumb-item active" aria-current="page">Venta</li>
+        </ol>
+    </div>
+<!-- contenido -->
+<div class="grid" style="padding-top:0;padding-left: 20px;padding-right: 20px;">
+    <!-- aca armamos el formulario -->
+    <form [formGroup]="forma" (ngSubmit)="guardar()">
+        <div class="jumbotron jumbotron-fluid" style="padding: 1rem;">
+            <div class="container">
+                <!-- DTAOS DEL CLIENTE -->
+                <h1 class="display-5" style="font-size: 1.6rem;">Cliente</h1>
+    
+                <!-- primera fila-->
+                <div class="form-row mb-3">
+                    <!-- RUT -->
+                    <div class="input-group-md col-md-2">
+                        <label for="inputRut">Rut</label>
+                        <input type="text" class="form-control" id="inputRut" placeholder="Rut" formControlName="nuevoRut"
+                            maxlength="9">
+                    </div>
+                    <!-- DV -->
+                    <div class="input-group-md col-md-1">
+                        <label for="inputDig">DV</label>
+                        <input type="text" class="form-control" id="inputDig" placeholder="" formControlName="nuevoDig"
+                            (keydown)="this.utiles.UpperCaseF($event)" (keydown.enter)="keyDowEnter($event)" maxlength="1"
+                            (focusout)="keyDowEnter($event)">
+                    </div>
+                    <!-- NOMBRES -->
+                    <div class="input-group-md col-md-3">
+                        <label for="inputNombre">Nombres</label>
+                        <input type="text" class="form-control" id="inputNombre" placeholder="Nombres"
+                            formControlName="nuevoNombre" (keydown)="this.utiles.UpperCaseF($event)" maxlength="200">
+                    </div>
+                    <!-- REGION -->
+                    <div class="input-group-md col-md-3">
+                        <label for="inputRegion1">Región</label>
+                        <select (change)="onChangeRegion($event)" class="custom-select" class="form-control"
+                            id="inputRegion1" formControlName="nuevoRegion">
+                            <option *ngFor="let v of listaRegiones;" [value]="v.Nombre">{{v.Nombre}}</option>
+                        </select>
+                    </div>
+                    <!-- COMUNA -->
+                    <div class="input-group-md col-md-3">
+                        <label for="inputComuna">Comuna</label>
+                        <select class="custom-select" class="form-control" id="inputComuna" formControlName="nuevoComuna">
+                            <option *ngFor="let r of listaComunas;" [value]="r.Nombre">{{r.Nombre}}</option>
+                        </select>
+                    </div>
+                    <!-- DIRECCION -->
+                    <div class="input-group-md col-md-5">
+                        <label for="inputDireccion">Dirección</label>
+                        <input type="text" class="form-control" id="inputDireccion" placeholder="Dirección"
+                            formControlName="nuevoDireccion" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
+                    </div>
+                    <!-- GIRO -->
+                    <div class="input-group-md col-md-3">
+    
+                        <label for="inputGiro">Giro</label>
+                        <input class="form-control" id="inputGiro" list="listaGirosStr" formControlName="nuevoGiro"
+                            name="lista" />
+                        <datalist id="listaGirosStr">
+                            <option *ngFor="let item of listaGirosStr" [value]="item">{{item}}</option>
+                        </datalist>
+                    </div>
+                    <!-- CORREO -->
+                    <div class="input-group-md col-md-4">
+                        <label for="inputCorreo">Correo</label>
+                        <input type="text" class="form-control" id="inputCorreo" formControlName="nuevoCorreo"
+                            placeholder="Correo" (keydown)="this.utiles.UpperCaseF($event)" maxlength="250">
+                    </div>
+                    <!-- TELEFONOS -->
+                    <div class="input-group-md col-md-3">
+                        <label for="inputTelefonos">Teléfono</label>
+                        <input type="text" class="form-control" id="inputTelefonos" formControlName="nuevoTelefonos"
+                            maxlength="12">
+                    </div>
+                    <!-- FAX -->
+                    <div class="input-group-md col-md-2">
+                        <label for="inputFax">Fax</label>
+                        <input type="text" class="form-control" id="inputFax" formControlName="nuevoFax" maxlength="12">
+                    </div>
+                    <div class="input-group-md col-md-2">
+                        <label for="inputFleteLocal">Flete Local</label>
+                        <input type="number" class="form-control" id="inputFleteLocal" formControlName="nuevoFleteLocal"
+                            min="0" max="100000">
+                    </div>
+                    <div class="input-group-md col-md-3">
+                        <label for="inputFleteDomicilio">Flete Domicilio</label>
+                        <input type="number" class="form-control" id="inputFleteDomicilio"
+                            formControlName="nuevoFleteDomicilio" min="0" max="200000">
+                    </div>
+                    <div class="input-group-md col-md-2">
+                        <label for="inputDescuento">Descuento %</label>
+                        <input type="number" class="form-control" id="inputDescuento" formControlName="nuevoDescuento"
+                            placeholder="Descuento" min="0" max="100">
+                    </div>
+    
+    
+                </div>
+                <div class="btn-toolbar mb-3">
+                    <div class="btn-group btn-group-lg" role="group" aria-label="Basic example">
+                        <button *ngIf="this.usuarioBuscado && this.usuarioBuscado.Id > 0 && this.modificaCliente == false"
+                            type="button" class="btn btn-primary" (click)="modificarCliente(true)">Modificar</button>
+                        <button *ngIf="this.modificaCliente" type="button" class="btn btn-primary"
+                            (click)="guardarCliente()">Guardar</button>
+                        <button *ngIf="this.modificaCliente" type="button" class="btn btn-secondary"
+                            (click)="cancelarModificacion()">Cancelar</button>
+                        <button *ngIf="this.botonLimpiarCliente" type="button" class="btn btn-info"
+                            (click)="limpiarCliente()">Limpiar</button>
+                    </div>
+                    <!-- <button *ngIf="this.usuarioBuscado && this.usuarioBuscado.Id > 0" type="button" class="btn btn-primary" (click)="guardar()">Modificar</button> -->
+                </div>
+
+                <!-- DATOS DE LA FACTURA -->
+                <h1 class="display-5" style="font-size: 1.6rem;">Otros Datos</h1>
+                <form [formGroup]="formaFactura">
+                    <div class="form-row mb-3">
+                        <!-- NUMERO FACTURA -->
+                        <div class="input-group-md col-md-2">
+                            <label for="inlineFormInputGroupUsername">Número Factura</label>
+                            <div class="input-group">
+                              <input type="number" class="form-control form-control-lg" id="inlineFormInputGroupUsername" placeholder="Número" formControlName="nuevoNumeroFactura" maxlength="9">
+                              <div *ngIf="!modificaNumeroFactura" class="input-group-prepend" style="cursor: pointer;">
+                                <div class="input-group-text" (click)="modificarNumeroFactura()">Modificar</div>
+                              </div>
+                              <div *ngIf="modificaNumeroFactura" class="input-group-prepend" style="cursor: pointer;">
+                                <div class="input-group-text" (click)="guardaNumeroFactura()">Guardar</div>
+                              </div>
+                            </div>
+                        </div>
+    
+                        <!-- NUMERO GUIA -->
+                        <div class="input-group-md col-md-2">
+                            <label for="inputNumeroGuia">Guia Despacho</label>
+                            <input type="number" class="form-control form-control-lg" id="inputNumeroGuia" placeholder="Guia"
+                                formControlName="nuevoNumeroGuia" maxlength="9">
+                        </div>
+    
+                        <!-- CONDICION DE VENTA -->
+                        <div class="input-group-md col-md-2">
+                            <label for="selectCV">Condición de Venta</label>
+                            <select class="form-control form-control-lg" id="selectCV" formControlName="nuevoCV">
+                                <option value="O">Efectivo</option>
+                                <option value="C">Cheque</option>
+                            </select>
+                        </div>
+    
+                        <!-- FECHA -->
+                        <div class="input-group-md col-md-2">
+                            <label for="inputFecha">Fecha</label><br/>
+                            <span style="font-size: x-large;">{{this.fechaActual}}</span>
+                        </div>
+    
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+        <!-- PRODUCTOS -->
+        <h1 class="display-5" style="font-size: 1.6rem;">Detalle</h1>
+        <form [formGroup]="formaDetalle">
+            <div class="form-row mb-3">
+                <!-- CODIGO DETALLE -->
+                <div class="input-group-md col-md-2">
+                    <label for="inputCodigo">Código</label>
+                        <input class="form-control" id="inputCodigo" list="listaCodigosProd" formControlName="nuevoCodigo" name="listaCodigos"
+                         (focusout)="keyDowEnterProducto($event, 1)" (keydown)="this.utiles.UpperCaseF($event)" />
+                        <datalist id="listaCodigosProd">
+                            <option *ngFor="let item of listaCodigosProd" [value]="item.Nombre">{{item.Nombre}}</option>
+                        </datalist>
+                </div>
+                <!-- NOMBRE DETALLE -->
+                <div class="input-group-md col-md-3">
+                    <label for="inputNombreDetalle">Nombre Producto</label>
+<!--                     <input class="form-control" id="inputNombreDetalle" list="listaNombresProd" formControlName="nuevoNombreDetalle" name="listaNombresProd"
+                        (focusout)="keyDowEnterProducto($event, 2)" (keydown)="this.utiles.UpperCaseF($event)" />
+                    <datalist id="listaNombresProd">
+                        <option *ngFor="let item of listaNombresProd" [value]="item.Nombre">{{item.Nombre}}</option>
+                    </datalist> -->
+                    <input type="text" class="form-control" id="inputNombreDetalle" formControlName="nuevoNombreDetalle" maxlength="200" (keydown)="this.utiles.UpperCaseF($event)">
+                </div>
+                <!-- STOCK -->
+                <div class="input-group-md col-md-2">
+                    <label for="inlineFormInputGroupStock">Stock</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="inlineFormInputGroupStock" formControlName="nuevoStock"
+                        min="0" max="1000000">
+                        <div *ngIf="!modificaStock" class="input-group-prepend" style="cursor: pointer;">
+                            <div class="input-group-text" (click)="modificarNumeroFactura()">Modificar</div>
+                        </div>
+                        <div *ngIf="modificaStock" class="input-group-prepend" style="cursor: pointer;">
+                            <div class="input-group-text" (click)="guardaNumeroFactura()">Guardar</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- VALOR -->
+                <div class="input-group-md col-md-1">
+                    <label for="inputValor">Valor</label>
+                    <input type="number" class="form-control" id="inputValor" 
+                        formControlName="nuevoValor" maxlength="9">
+                </div>
+                <!-- CANTIDAD -->
+                <div class="input-group-md col-md-1">
+                    <label for="inputCantidad">Cantidad</label>
+                    <input type="number" class="form-control" id="inputCantidad" 
+                        formControlName="nuevoCantidad" maxlength="9" (focusout)="calculaSubtotal($event)">
+                </div>
+                <!-- MEDIDA -->
+                <div class="input-group-md col-md-1">
+                    <label for="selectMedida">Medida</label>
+                    <select class="form-control" id="selectMedida" formControlName="nuevoMedida">
+                        <option value="UN">UN</option>
+                        <option value="M3">M3</option>
+                        <option value="Kl">KL</option>
+                    </select>
+                </div>
+                <!-- VOLUMEN 
+                <div class="input-group-md col-md-1">
+                    <label for="inputVolumen">Volumen</label>
+                    <input type="number" class="form-control" id="inputVolumen" 
+                        formControlName="nuevoVolumen" maxlength="9">
+                </div>-->
+                <!-- SUBTOTAL -->
+                <div class="input-group-md col-md-1">
+                    <label for="inputSubtotal">Subtotal</label>
+                    <input type="number" class="form-control" id="inputSubtotal" 
+                        formControlName="nuevoSubtotal" maxlength="9">
+                </div>
+                <div class="input-group-md col-md-1" style="padding-top:28px;">
+                    <button *ngIf="this.formaDetalle.valid" type="button" class="btn btn-success" (click)="agregarProductoDetalle()">Agregar</button>
+                </div>
+ 
+            </div>
+        </form>
+        
+        <!-- lista productos -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th scope="col">Artículo</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col" class="text-center">Volume</th>
+                    <th scope="col" class="text-right">Precio Unitario</th>
+                    <th scope="col" class="text-right">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="this.listaProductos.length > 0">
+                <tr *ngFor="let dett of this.listaProductos">
+                    <th>
+                        <button type="button" class="btn btn-link" (click)="quitarProductoLista(dett.Id)">Quitar</button>
+                    </th>
+                    <th>{{ dett.CodProduc }}</th>
+                    <th>{{ dett.NomProduc }}</th>
+                    <th class="text-center">{{ dett.Cantidad }} {{dett.Unidad}}</th>
+                    <th class="text-right">{{ dett.ValProduc | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
+                    <th class="text-right">{{ dett.Subtotal | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
+                </tr>
+            </tbody>
+            <tfoot *ngIf="this.listaProductos.length > 0">
+                <tr style="color: #5a5a5a;">
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>NETO</th>
+                    <th class="text-right">{{this.sumarNetosN() | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th>
+                </tr>
+                <tr style="color: #5a5a5a;">
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>IVA</th>
+                    <th class="text-right">{{this.ivaDetalle() | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th>
+                    <!-- <th class="text-right">{{this.calculaImpuesto(this.facturaSeleccionada.ValFactur, this.sumarNetos(this.detalleSeleccionado)) | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th> -->
+                </tr>
+                <tr style="color: #5a5a5a;">
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL</th>
+                    <th class="text-right">{{this.sumaTotal() | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th>
+                    <!-- <th class="text-right">{{this.facturaSeleccionada.ValFactur | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat}}</th> -->
+                </tr>
+            </tfoot>
+        </table>
+
+    </form>
+</div>
+</section>

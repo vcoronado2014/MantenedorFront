@@ -53,6 +53,7 @@ import { MenuParametrosComponent } from './menu-parametros/menu-parametros.compo
 import { ProductosComponent } from './productos/productos.component';
 import { FacturasComponent } from './facturas/facturas.component';
 import { ComprasComponent } from './compras/compras.component';
+import { FacturaVentaComponent } from './factura-venta/factura-venta.component';
 //pipes
 import { CurrencyFormat } from './pipes/CurrencyFormat'
 
@@ -73,6 +74,7 @@ import { CurrencyFormat } from './pipes/CurrencyFormat'
     ProductosComponent,
     FacturasComponent,
     ComprasComponent,
+    FacturaVentaComponent,
     CurrencyFormat,
   ],
   imports: [
