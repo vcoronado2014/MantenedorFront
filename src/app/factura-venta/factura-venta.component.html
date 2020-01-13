@@ -136,7 +136,7 @@
                         </div>
     
                         <!-- NUMERO GUIA -->
-                        <div class="input-group-md col-md-2">
+                        <div class="input-group-md col-md-1">
                             <label for="inputNumeroGuia">Guia Despacho</label>
                             <input type="number" class="form-control form-control-lg" id="inputNumeroGuia" placeholder="Guia"
                                 formControlName="nuevoNumeroGuia" maxlength="9">
@@ -145,15 +145,41 @@
                         <!-- CONDICION DE VENTA -->
                         <div class="input-group-md col-md-2">
                             <label for="selectCV">Condición de Venta</label>
-                            <select class="form-control form-control-lg" id="selectCV" formControlName="nuevoCV">
+                            <select class="form-control form-control-lg" id="selectCV" formControlName="nuevoCV" (change)="onChangeCV($event)">
                                 <option value="O">Efectivo</option>
                                 <option value="C">Cheque</option>
                             </select>
                         </div>
+                        <!-- BANCOS -->
+                        <div *ngIf="this.formaFactura.controls.nuevoCV.value == 'C'" class="input-group-md col-md-2">
+                            <label for="inputBanco">Banco</label>
+                            <input class="form-control form-control-lg" id="inputBanco" list="listaBancosStr" formControlName="nuevoBanco" name="listaBancos" />
+                            <datalist id="listaBancosStr">
+                                <option *ngFor="let item of listaBancosStr" [value]="item">{{item}}</option>
+                            </datalist>
+                        </div>
+                        <!-- FECHA CHEQUE -->
+                        <div *ngIf="this.formaFactura.controls.nuevoCV.value == 'C'" class="input-group-md col-md-2">
+                            <label for="exampleInputEmail1">Fecha Vencimiento</label>
+                            <div class="input-group">
+                                <input class="form-control form-control-lg" matInput [matDatepicker]="picker" [max]="maxDate" [min]="minDate"
+                                    formControlName="nuevoVencimiento" placeholder="Fecha vcto" id="exampleInputEmail1">
+                                <div class="input-group-prepend" style="cursor: pointer;">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- NUMERO CHEQUE -->
+                        <div *ngIf="this.formaFactura.controls.nuevoCV.value == 'C'" class="input-group-md col-md-1">
+                            <label for="inputNumeroCheque">Nº Cheque</label>
+                            <input type="text" class="form-control form-control-lg" id="inputNumeroCheque" 
+                                formControlName="nuevoNumeroCheque" maxlength="50">
+                        </div>
     
                         <!-- FECHA -->
                         <div class="input-group-md col-md-2">
-                            <label for="inputFecha">Fecha</label><br/>
+                            <label for="inputFecha">Fecha Actual</label><br/>
                             <span style="font-size: x-large;">{{this.fechaActual}}</span>
                         </div>
     
@@ -187,17 +213,17 @@
                     <input type="text" class="form-control" id="inputNombreDetalle" formControlName="nuevoNombreDetalle" maxlength="200" (keydown)="this.utiles.UpperCaseF($event)">
                 </div>
                 <!-- STOCK -->
-                <div class="input-group-md col-md-2">
+                <div class="input-group-md col-md-1">
                     <label for="inlineFormInputGroupStock">Stock</label>
                     <div class="input-group">
                         <input type="number" class="form-control" id="inlineFormInputGroupStock" formControlName="nuevoStock"
                         min="0" max="1000000">
-                        <div *ngIf="!modificaStock" class="input-group-prepend" style="cursor: pointer;">
+<!--                         <div *ngIf="!modificaStock" class="input-group-prepend" style="cursor: pointer;">
                             <div class="input-group-text" (click)="modificarNumeroFactura()">Modificar</div>
                         </div>
                         <div *ngIf="modificaStock" class="input-group-prepend" style="cursor: pointer;">
                             <div class="input-group-text" (click)="guardaNumeroFactura()">Guardar</div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <!-- VALOR -->
@@ -210,23 +236,23 @@
                 <div class="input-group-md col-md-1">
                     <label for="inputCantidad">Cantidad</label>
                     <input type="number" class="form-control" id="inputCantidad" 
-                        formControlName="nuevoCantidad" maxlength="9" (focusout)="calculaSubtotal($event)">
+                        formControlName="nuevoCantidad" maxlength="9" >
                 </div>
                 <!-- MEDIDA -->
                 <div class="input-group-md col-md-1">
                     <label for="selectMedida">Medida</label>
-                    <select class="form-control" id="selectMedida" formControlName="nuevoMedida">
+                    <select class="form-control" id="selectMedida" formControlName="nuevoMedida" (change)="calculaSubtotal($event)" (focusout)="calculaSubtotal($event)">
                         <option value="UN">UN</option>
                         <option value="M3">M3</option>
                         <option value="Kl">KL</option>
                     </select>
                 </div>
-                <!-- VOLUMEN 
+                <!-- VOLUMEN -->
                 <div class="input-group-md col-md-1">
                     <label for="inputVolumen">Volumen</label>
                     <input type="number" class="form-control" id="inputVolumen" 
                         formControlName="nuevoVolumen" maxlength="9">
-                </div>-->
+                </div>
                 <!-- SUBTOTAL -->
                 <div class="input-group-md col-md-1">
                     <label for="inputSubtotal">Subtotal</label>
@@ -247,7 +273,7 @@
                     <th>#</th>
                     <th scope="col">Artículo</th>
                     <th scope="col">Descripción</th>
-                    <th scope="col" class="text-center">Volume</th>
+                    <th scope="col" class="text-center">Volumen</th>
                     <th scope="col" class="text-right">Precio Unitario</th>
                     <th scope="col" class="text-right">Subtotal</th>
                 </tr>
@@ -259,7 +285,7 @@
                     </th>
                     <th>{{ dett.CodProduc }}</th>
                     <th>{{ dett.NomProduc }}</th>
-                    <th class="text-center">{{ dett.Cantidad }} {{dett.Unidad}}</th>
+                    <th class="text-center">{{ dett.VolProduc }} {{dett.Unidad}}</th>
                     <th class="text-right">{{ dett.ValProduc | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
                     <th class="text-right">{{ dett.Subtotal | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
                 </tr>
@@ -293,7 +319,9 @@
                 </tr>
             </tfoot>
         </table>
-
+        <div class="row">
+            <button type="button" class="btn btn-primary" (click)="guardarTodo()">Guardar Venta</button>
+        </div>
     </form>
 </div>
 </section>

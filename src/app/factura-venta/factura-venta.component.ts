@@ -20,12 +20,17 @@ import { CompleterService, CompleterData } from 'ng2-completer';
 import { DataTableDirective } from 'angular-datatables';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 //dialog
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, throwToolbarMixedModesError } from '@angular/material';
 
 
 declare var $: any;
 import * as moment from 'moment';
-import { forEach } from '@angular/router/src/utils/collection';
+//sweet alert
+//import swal from 'sweetalert';
+import * as _swal from 'sweetalert';
+import { SweetAlert } from 'sweetalert/typings/core';
+import { Title } from '@angular/platform-browser';
+const swal: SweetAlert = _swal as any;
 
 
 @Component({
@@ -52,6 +57,8 @@ export class FacturaVentaComponent implements OnInit {
   listaComunas;
   listaGirosStr;
   listaGiros;
+  listaBancos;
+  listaBancosStr;
   listaProductos = [];
   listaNombresProd;
   listaCodigosProd;
@@ -69,6 +76,10 @@ export class FacturaVentaComponent implements OnInit {
   fechaActual;
   //iva
   iva: number = 0;
+  //datepiker
+  maxDate;
+  fechaInicio;
+  minDate;
 
 
   constructor(
@@ -85,6 +96,7 @@ export class FacturaVentaComponent implements OnInit {
     this.toastr.setRootViewContainerRef(_vcr);
   }
   ngOnInit() {
+    
     this.fechaActual = moment().format("DD/MM/YYYY");
     if (sessionStorage.getItem("USER_LOGUED_IN")) {
       var usuarioLogueado = JSON.parse(sessionStorage.getItem("USER_LOGUED_IN"));
@@ -96,14 +108,24 @@ export class FacturaVentaComponent implements OnInit {
         this.iva = usuarioLogueado.Parametro.Iva;
       }
     }
+    //fechas
+    var fechaIni = moment();
+    var maxima = moment().add(90, 'days');
+    var minima = moment().subtract(7, 'days');
+    this.fechaInicio = this.retornaFecha(fechaIni);
+    this.maxDate = this.retornaFecha(maxima);
+    this.minDate = this.retornaFecha(minima);
+
     this.obtenerCodigosProductos();
     this.obtenerNombresProductos();
     this.obtenerRegiones(this.nodIdLogueado);
     this.obtenerGiros(this.nodIdLogueado);
+    this.obtenerBancos(this.nodIdLogueado);
     this.obtenerParametros(this.nodIdLogueado);
     this.cargarForma();
     this.cargarFormaFactura();
     this.cargarFormaDetalle();
+    //swal("hola");
 
   }
   cargarFormaDetalle(){
@@ -118,17 +140,23 @@ export class FacturaVentaComponent implements OnInit {
       'nuevoValor': new FormControl(0, Validators.required),
       'nuevoSubtotal': new FormControl(0, Validators.required),
     });
+    this.formaDetalle.controls.nuevoVolumen.disable();
+    this.formaDetalle.controls.nuevoStock.disable();
   }
   cargarFormaFactura(){
     this.formaFactura = new FormGroup({
       'nuevoNumeroFactura': new FormControl(this.numeroFacturaActual, Validators.required),
       'nuevoNumeroGuia': new FormControl('0'),
       'nuevoCV': new FormControl('', Validators.required),
+      'nuevoBanco': new FormControl(''),
+      'nuevoVencimiento': new FormControl(this.retornaFecha(moment())),
+      'nuevoNumeroCheque': new FormControl(''),
     });
   }
   cargarForma() {
 
     this.forma = new FormGroup({
+      'nuevoIdCliente': new FormControl(0),
       'nuevoRut': new FormControl('', [Validators.required, Validators.minLength(3)]),
       'nuevoDig': new FormControl('', [Validators.required, Validators.maxLength(1)]),
       'nuevoNombre': new FormControl('', Validators.required),
@@ -146,6 +174,286 @@ export class FacturaVentaComponent implements OnInit {
     });
 
     console.log(this.forma.valid + ' ' + this.forma.status);
+  }
+  limpiarTodo(){
+    this.listaProductos = [];
+    this.usuarioBuscado = null;
+    this.limpiarCliente();
+    this.obtenerParametros(this.nodIdLogueado);
+  }
+  //validar todo
+  validaAntesGuardar(){
+    var retorno ={
+      Cliente: null,
+      Factura: null,
+      Errores: [],
+      Productos: [],
+      Totales: null
+    }
+    var errores = [];
+    var id = 0;
+    if (this.forma.controls.nuevoIdCliente){
+      if (this.forma.controls.nuevoIdCliente.value != null){
+        id = this.forma.controls.nuevoIdCliente.value;
+      }
+    }
+    var rut = '';
+    if (this.forma.controls.nuevoRut){
+      if (this.forma.controls.nuevoRut.value != null){
+        rut = String(this.forma.controls.nuevoRut.value);
+      }
+    }
+    var dv = '';
+    if (this.forma.controls.nuevoDig){
+      if (this.forma.controls.nuevoDig.value != null){
+        dv = String(this.forma.controls.nuevoDig.value);
+      }
+    }
+    var nombres = '';
+    if (this.forma.controls.nuevoNombre){
+      if (this.forma.controls.nuevoNombre.value != null){
+        nombres = String(this.forma.controls.nuevoNombre.value);
+      }
+    }
+    var giro = '';
+    if (this.forma.controls.nuevoGiro){
+      if (this.forma.controls.nuevoGiro.value != null){
+        giro = String(this.forma.controls.nuevoGiro.value);
+      }
+    }
+    var comuna = '';
+    if (this.forma.controls.nuevoComuna){
+      if (this.forma.controls.nuevoComuna.value != null){
+        comuna = String(this.forma.controls.nuevoComuna.value);
+      }
+    }
+    var ciudad = '';
+    if (this.forma.controls.nuevoRegion){
+      if (this.forma.controls.nuevoRegion.value != null){
+        ciudad = String(this.forma.controls.nuevoRegion.value);
+      }
+    }
+    var direccion = '';
+    if (this.forma.controls.nuevoDireccion){
+      if (this.forma.controls.nuevoDireccion.value != null){
+        direccion = String(this.forma.controls.nuevoDireccion.value);
+      }
+    }
+    var telefonos = '';
+    if (this.forma.controls.nuevoTelefonos){
+      if (this.forma.controls.nuevoTelefonos.value != null){
+        telefonos = String(this.forma.controls.nuevoTelefonos.value);
+      }
+    }
+    var contacto = '';
+    if (this.forma.controls.nuevoContacto){
+      if (this.forma.controls.nuevoContacto.value != null){
+        contacto = String(this.forma.controls.nuevoContacto.value);
+      }
+    }
+    var correo = '';
+    if (this.forma.controls.nuevoCorreo){
+      if (this.forma.controls.nuevoCorreo.value != null){
+        correo = String(this.forma.controls.nuevoCorreo.value);
+      }
+    }
+    var fax = '';
+    if (this.forma.controls.nuevoFax){
+      if (this.forma.controls.nuevoFax.value != null){
+        fax = String(this.forma.controls.nuevoFax.value);
+      }
+    }
+    var fleteLocal = '0';
+    if (this.forma.controls.nuevoFleteLocal){
+      if (this.forma.controls.nuevoFleteLocal.value != null && String(this.forma.controls.nuevoFleteLocal.value) != ''){
+        fleteLocal = String(this.forma.controls.nuevoFleteLocal.value);
+      }
+    }
+    var fleteDomicilio = '0';
+    if (this.forma.controls.nuevoFleteDomicilio){
+      if (this.forma.controls.nuevoFleteDomicilio.value != null && String(this.forma.controls.nuevoFleteDomicilio.value) != ''){
+        fleteDomicilio = String(this.forma.controls.nuevoFleteDomicilio.value);
+      }
+    }
+    var descuento = '0';
+    if (this.forma.controls.nuevoDescuento){
+      if (this.forma.controls.nuevoDescuento.value != null && String(this.forma.controls.nuevoDescuento.value) != ''){
+        descuento = String(this.forma.controls.nuevoDescuento.value);
+      }
+    }
+
+    if (String(this.forma.controls.nuevoComuna.value) == '' || String(this.forma.controls.nuevoComuna.value) == 'Seleccione'){
+      var error = {
+        Mensaje: 'Comuna Requerido'
+      }
+      errores.push(error);
+    }
+    if (String(this.forma.controls.nuevoGiro.value) == ''){
+      var error = {
+        Mensaje: 'Giro Requerido'
+      }
+      errores.push(error);
+    }
+    if (String(this.forma.controls.nuevoRegion.value) == '' || String(this.forma.controls.nuevoRegion.value) == 'Seleccione'){
+      var error = {
+        Mensaje: 'Región Requerido'
+      }
+      errores.push(error);
+    }
+    if (rut.length <= 3){
+      var error = {
+        Mensaje: 'Rut con menos de 3 caracteres'
+      }
+      errores.push(error);
+    }
+    if (nombres == ''){
+      var error = {
+        Mensaje: 'Nombres requerido'
+      }
+      errores.push(error);
+    }
+    if (direccion == ''){
+      var error = {
+        Mensaje: 'Dirección requerido'
+      }
+      errores.push(error);
+    }
+    var numeroFactura = this.formaFactura.controls.nuevoNumeroFactura.value;
+    if (numeroFactura <= 0){
+      var error = {
+        Mensaje: 'Número de factura invalido'
+      }
+      errores.push(error);
+    }
+    var numeroGuia = this.formaFactura.controls.nuevoNumeroGuia.value;
+    var condicionVenta = this.formaFactura.controls.nuevoCV.value;
+    var banco = this.formaFactura.controls.nuevoBanco.value;
+    var vencimiento = this.formaFactura.controls.nuevoVencimiento.value;
+    var numeroCheque = this.formaFactura.controls.nuevoNumeroCheque.value;
+    if (condicionVenta != 'O'){
+      if (banco == ''){
+        var error = {
+          Mensaje: 'Banco invalido'
+        }
+        errores.push(error);
+      }
+      if (vencimiento == ''){
+        var error = {
+          Mensaje: 'Vencimiento cheque invalido'
+        }
+        errores.push(error);
+      }
+      if (numeroCheque == ''){
+        var error = {
+          Mensaje: 'Cheque invalido'
+        }
+        errores.push(error);
+      }
+    }
+    if (this.listaProductos.length == 0){
+      var error = {
+        Mensaje: 'No hay Productos en la venta'
+      }
+      errores.push(error);
+    }
+
+    var entidadFactura = {
+      NumeroFactura: numeroFactura,
+      NumeroGuia: numeroGuia,
+      CondicionVenta: condicionVenta,
+      Banco: banco,
+      Vencimiento: vencimiento,
+      NumeroCheque: numeroCheque
+    }
+
+    var entidadCliente = {
+      Id: id,
+      Rut: rut,
+      Dv: dv.toUpperCase(),
+      Nombres: nombres.toUpperCase(),
+      Region: ciudad.toUpperCase(),
+      Giro: giro.toUpperCase(),
+      Comuna: comuna.toUpperCase(),
+      Direccion: direccion.toUpperCase(),
+      Telefonos: telefonos,
+      Contacto: contacto.toUpperCase(),
+      Correo: correo.toUpperCase(),
+      Fax: fax,
+      FleteLocal: fleteLocal,
+      FleteDomicilio: fleteDomicilio,
+      Eliminado: 0,
+      Descuento: descuento
+    };
+    var entidadTotales = {
+      Neto: this.sumarNetosN(),
+      Iva: this.ivaDetalle(),
+      Total: this.sumaTotal()
+    }
+    retorno.Cliente = entidadCliente;
+    retorno.Errores = errores;
+    retorno.Productos = this.listaProductos;
+    retorno.Factura = entidadFactura;
+    retorno.Totales = entidadTotales;
+
+    return retorno;
+
+  }
+  guardarTodo(){
+    console.log(this.validaAntesGuardar());
+    var retorno = this.validaAntesGuardar();
+    if (retorno.Errores.length > 0){
+      var mensaje = '';
+      retorno.Errores.forEach(error => {
+        mensaje += error.Mensaje + '\r\n'
+      });
+      swal(
+        {
+          title: 'Errores en el formulario',
+          text: mensaje
+        }
+      )
+    }
+    else {
+      swal(
+        {
+          title: '¿Quieres guardar la factura?',
+          text: 'Se guardará completamente la venta, pudiendo sólo modificar el número de factura posteriormente.',
+          buttons: ["NO", "SI QUIERO"],
+        }
+      ).then((value) => {
+        if (value){
+          this.limpiarTodo();
+          //aca debriamos guardar toda la factura
+          //swal(`The returned value is: ${value}`);
+        }
+        
+      });
+    }
+  }
+  retornaFecha(fechaMoment){
+    var retorno = '';
+    var year = fechaMoment.year();
+    var mes = fechaMoment.month() + 1;
+    var dia = fechaMoment.date();
+    var mesStr = '';
+    var diaStr = '';
+    if (mes < 10){
+        mesStr = '0' + mes.toString();
+    }
+    else{
+        mesStr = mes.toString();
+    }
+
+    if (dia < 10){
+        diaStr = '0' + dia.toString();
+    }
+    else{
+        diaStr = dia.toString();
+    }
+
+    retorno = year +'-' + mesStr + '-' + diaStr;
+
+    return retorno;
   }
   keyDowEnter(event) {
     console.log(event);
@@ -221,9 +529,11 @@ export class FacturaVentaComponent implements OnInit {
     var entidad = {
       Id: this.formaDetalle.controls.nuevoId.value,
       Eliminado: 0,
-      CodProduc: this.formaDetalle.controls.nuevoCodigo.value,
-      NomProduc: this.formaDetalle.controls.nuevoNombreDetalle.value,
-      VolProduc: this.formaDetalle.controls.nuevoVolumen.value,
+      CodProduc: this.formaDetalle.controls.nuevoCodigo.value.toUpperCase(),
+      NomProduc: this.formaDetalle.controls.nuevoNombreDetalle.value.toUpperCase(),
+      //VolProduc: this.formaDetalle.controls.nuevoVolumen.value,
+      //lo dejamos en 0
+      VolProduc:this.formaDetalle.controls.nuevoVolumen.value,
       Cantidad: this.formaDetalle.controls.nuevoCantidad.value,
       ValProduc: this.formaDetalle.controls.nuevoValor.value,
       StoProduc: this.formaDetalle.controls.nuevoStock.value - this.formaDetalle.controls.nuevoCantidad.value,
@@ -241,6 +551,7 @@ export class FacturaVentaComponent implements OnInit {
           //existe
           productoLista = producto;
           this.listaProductos[i].Cantidad = this.listaProductos[i].Cantidad + entidad.Cantidad;
+          this.listaProductos[i].VolProduc = this.listaProductos[i].VolProduc + entidad.VolProduc;
           this.listaProductos[i].Subtotal = this.listaProductos[i].Subtotal + entidad.Subtotal;
           existe = true;
           break;
@@ -305,24 +616,43 @@ export class FacturaVentaComponent implements OnInit {
 
   }
   calculaSubtotal(event){
-    var cantidad = parseInt(event.target.value);
+    var medida = event.target.value;
+    var factor = 1;
+    if (medida == 'M3'){
+      factor = 10;
+    }
+    //var cantidad = parseInt(event.target.value);
+    var cantidad = this.formaDetalle.controls.nuevoCantidad.value;
     var retorno = 0;
     if (this.formaDetalle.controls.nuevoValor){
       if (cantidad > 0){
         var valor =this.formaDetalle.controls.nuevoValor.value;
-        retorno = valor * cantidad;
+        retorno = valor * cantidad * factor;
       }
     }
-
+    this.formaDetalle.controls.nuevoVolumen.setValue(cantidad * factor);
     this.formaDetalle.controls.nuevoSubtotal.setValue(retorno);
     return retorno;
+  }
+  onChangeCV(event){
+    if (event.target.value){
+      if (event.target.value == 'O'){
+        //limpiamos los datos del cheque
+        this.formaFactura.controls.nuevoBanco.setValue('');
+        this.formaFactura.controls.nuevoVencimiento.setValue('');
+        this.formaFactura.controls.nuevoNumeroCheque.setValue('');
+      }
+    }
   }
   mostrarDatosParametros(){
     if (this.parametros){
       this.formaFactura.setValue({
+        nuevoVencimiento: this.retornaFecha(moment()),
+        nuevoBanco: '',
         nuevoNumeroFactura: this.numeroFacturaActual,
         nuevoNumeroGuia: '0',
-        nuevoCV: 'O'
+        nuevoCV: 'O',
+        nuevoNumeroCheque: ''
       });
       //deshabilitamos
       this.formaFactura.controls.nuevoNumeroFactura.disable();
@@ -331,19 +661,54 @@ export class FacturaVentaComponent implements OnInit {
   mostrarDatosDetalle(detalle) {
     if (detalle) {
       if (detalle.Id > 0) {
-        this.formaDetalle.setValue({
-          nuevoId: detalle.Id,
-          nuevoCodigo: detalle.CodProduc,
-          nuevoNombreDetalle: detalle.NomProduc,
-          nuevoStock: detalle.StoProduc,
-          nuevoCantidad: 0,
-          nuevoVolumen: parseFloat(detalle.VolProduc),
-          nuevoMedida: 'UN',
-          nuevoValor: parseInt(detalle.ValProduc),
-          nuevoSubtotal: 0
-        });
-        //deshabilitamos
-        this.formaDetalle.controls.nuevoStock.disable();
+        //aca deberiamos levantar una alerta si el producto no tiene stock
+        //o dejar que el mismo usuario modifique dicho stock
+        if (detalle.StoProduc == '' || detalle.StoProduc == '0'){
+          //swal('No hay');
+          swal(
+            {
+              title: 'No tienes stock suficiente',
+              text: 'Se habilitará la casilla para que ingreses el nuevo stock y poder continuar con la operación',
+              buttons: ["NO", "SI QUIERO"],
+            }
+          ).then((value) => {
+            if (value){
+              this.formaDetalle.controls.nuevoStock.enable();
+              this.modificaStock = true;
+              document.getElementById('inlineFormInputGroupStock').focus();
+              this.formaDetalle.setValue({
+                nuevoId: detalle.Id,
+                nuevoCodigo: detalle.CodProduc,
+                nuevoNombreDetalle: detalle.NomProduc,
+                nuevoStock: 0,
+                nuevoCantidad: 0,
+                nuevoVolumen: parseFloat(detalle.VolProduc),
+                nuevoMedida: 'UN',
+                nuevoValor: parseInt(detalle.ValProduc),
+                nuevoSubtotal: 0
+              });
+              //aca debriamos guardar toda la factura
+              //swal(`The returned value is: ${value}`);
+            }
+            
+          });
+        }
+        else{
+          this.formaDetalle.setValue({
+            nuevoId: detalle.Id,
+            nuevoCodigo: detalle.CodProduc,
+            nuevoNombreDetalle: detalle.NomProduc,
+            nuevoStock: detalle.StoProduc,
+            nuevoCantidad: 0,
+            nuevoVolumen: 0,
+            nuevoMedida: 'UN',
+            nuevoValor: parseInt(detalle.ValProduc),
+            nuevoSubtotal: 0
+          });
+          //deshabilitamos
+          this.formaDetalle.controls.nuevoStock.disable();
+        }
+
       }
       else {
         //producto no está
@@ -399,6 +764,8 @@ export class FacturaVentaComponent implements OnInit {
     });
     //deshabilitamos
     this.formaDetalle.controls.nuevoStock.enable();
+    //this.formaDetalle.controls.nuevoCodigo
+    document.getElementById('inputCodigo').focus();
 
   }
   mostrarDatos(usu) {
@@ -407,6 +774,7 @@ export class FacturaVentaComponent implements OnInit {
       //setear los campos
       //this.forma.controls.nuevoNombreUsuario
       this.forma.setValue({
+        nuevoIdCliente: this.usuarioBuscado.Id,
         nuevoRut: this.usuarioBuscado.RutClient,
         nuevoDig: this.usuarioBuscado.DigClient,
         nuevoNombre: this.usuarioBuscado.NomClient,
@@ -718,6 +1086,33 @@ export class FacturaVentaComponent implements OnInit {
     );
 
   }
+  obtenerBancos(instId) {
+    //indicador valor
+    this.listaBancosStr = [];
+    this.loading = true;
+    this.gajico.postBancos(instId).subscribe(
+      data => {
+        if (data) {
+          this.listaBancos = data.json();
+          this.listaBancos.forEach(element => {
+            this.listaBancosStr.push(element.Nombre);
+          });
+          //console.log(this.listaGiros);
+          //this.showToast('success', 'Correcto', 'Recuperado');
+        }
+      },
+      err => {
+        console.error(err);
+        this.loading = false;
+        this.showToast('error', err, 'Error');
+      },
+      () => {
+        this.loading = false;
+        console.log('get info Regiones');
+      }
+    );
+
+  }
   obtenerParametros(instId) {
     //indicador valor
     this.loading = true;
@@ -814,18 +1209,6 @@ export class FacturaVentaComponent implements OnInit {
       retorno = netos + iva;
     }
     return retorno;
-  }
-  sumarNetos(arrDetalle){
-    var retorno = 0
-    if (arrDetalle && arrDetalle.length > 0){
-      arrDetalle.forEach(detalle => {
-        retorno = retorno + parseInt(detalle.NetDetall);
-      });
-    }
-    return retorno;
-  }
-  calculaImpuesto(total, neto){
-    return parseInt(total) - parseInt(neto);
   }
   showToast(tipo, mensaje, titulo) {
     if (tipo == 'success') {
