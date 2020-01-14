@@ -159,6 +159,37 @@
                 </div>
             </div>
             <!-- FIN FILA 3-->
+            <!-- FILA 4-->
+            <div class="row" style="font-size: 1.3em;">
+              <div class="col-xs-12 col-md-2 borde-fac text-center">
+                <label text-center>Nº Guía</label>
+              </div>
+              <div class="col-xs-12 col-md-5 borde-fac text-center" *ngIf="this.facturaSeleccionada.ConFactur == 'C'">
+                <label>Banco</label>
+              </div>
+              <div class="col-xs-12 col-md-2 borde-fac text-center" *ngIf="this.facturaSeleccionada.ConFactur == 'C'">
+                <label>Nº Cheque</label>
+              </div>
+              <div class="col-xs-12 col-md-3 borde-fac text-center" *ngIf="this.facturaSeleccionada.ConFactur  == 'C'">
+                <label>Vencimiento</label>
+              </div>
+            
+            </div>
+            <div class="row" style="font-size: 1.3em;">
+              <div class="col-xs-12 col-md-2 borde-fac-det text-center">
+                <span>{{this.facturaSeleccionada.GuiFactur}}</span>
+              </div>
+              <div class="col-xs-12 col-md-5 borde-fac-det text-center" *ngIf="this.facturaSeleccionada.ConFactur == 'C'">
+                <span>{{this.facturaSeleccionada.BanFactur}}</span>
+              </div>
+              <div class="col-xs-12 col-md-2 borde-fac-det text-center" *ngIf="this.facturaSeleccionada.ConFactur  == 'C'">
+                <span>{{this.facturaSeleccionada.CheFactur}}</span>
+              </div>
+              <div class="col-xs-12 col-md-3 borde-fac-det text-center" *ngIf="this.facturaSeleccionada.ConFactur  == 'C'">
+                <span>{{this.facturaSeleccionada.FveFactur}}</span>
+              </div>
+            </div>
+            <!-- FIN FILA 4-->
             </div>
           </div>
         <div class="jumbotron jumbotron-fluid" style="padding: 1rem;">

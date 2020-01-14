@@ -40,8 +40,8 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th></th>
               <th>Rut</th>
+              <th>Proveedor</th>
               <th>Numero</th>
               <th>Fecha</th>
               <th>Valor</th>
@@ -52,33 +52,16 @@
           <tbody *ngIf="!loading">
             <tr *ngFor="let person of persons">
               <td>{{ person.Factura.Id }}</td>
-<!--               <td orderable="false" data-toggle="modal" data-target="#exampleModalCenter" (click)="seleccionarFactura(person.Factura, person.Detalle, person.Proveedor, person)" class="details-control" id="detail-btn">
-                  <i class="fa fa-angle-right fa-2x text-center"></i>
-              </td> -->
-              <td orderable="false">
-                <button style="float: right;" *ngIf="person.Factura.Eliminado == 0" type="button" class="btn btn-danger" data-toggle="modal"
-                    data-target="#exampleModalCenter" (click)="seleccionarFactura(person.Factura, person.Detalle, person.Proveedor, person)">
-                    <i title="Desactivar" class="fas fa-angle-right"></i>
-                </button>
-              </td>
               <td>{{ person.Factura.RutFactur }}-{{ person.Factura.DigFactur }}</td>
+              <td>{{ person.Proveedor.NomProved }}</td>
               <td>{{ person.Factura.NumFactur }}</td>
               <td>{{ person.Factura.FeeFactur }}</td>
               <td>{{ person.Factura.ValFactur | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</td>
               <td>{{this.utiles.retornaTipoFactura(person.Factura.TipFactur)}}</td>
               <!-- <td>{{ person.Factura.ValFactur | currencyFormat }}</td> -->
-              <td>
-
-                <button style="float: right;" *ngIf="person.Factura.Eliminado == 0" type="button" class="btn btn-danger" data-toggle="modal"
-                    data-target="#exampleModalCenter" (click)="seleccionar(person)">
-                    <i title="Desactivar" class="fas fa-window-close"></i>
-                </button>
-                <button style="float: right;" *ngIf="person.Factura.Eliminado == 1" type="button" class="btn btn-info" data-toggle="modal"
-                    data-target="#exampleModalCenter1" (click)="seleccionar(person)">
-                    <i title="Activar" class="fas fa-check"></i>
-                </button>                
-                <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" data-toggle="modal" data-target="#modalEdicion"
-                    (click)="editar(person)">Editar</button>
+              <td>              
+                <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter"
+                    (click)="seleccionarFactura(person.Factura, person.Detalle, person.Proveedor, person)">Ver</button>
               </td>
             </tr>
           </tbody>
@@ -197,7 +180,7 @@
                         <th>{{ dett.NomProduc }}</th>
                         <th>{{ dett.VolDetall }}</th>
                         <th class="text-right">{{ dett.PreDetall | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
-                        <th class="text-right">{{ dett.NetDetall | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
+                        <th class="text-right">{{ this.subtotalDetalle(dett) | currency : 'CLP' :'symbol-narrow':'3.0' | currencyFormat }}</th>
                       </tr>
                     </tbody>
                     <tfoot>

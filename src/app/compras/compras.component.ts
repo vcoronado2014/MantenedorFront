@@ -129,10 +129,20 @@ sumarNetos(arrDetalle){
   var retorno = 0
   if (arrDetalle && arrDetalle.length > 0){
     arrDetalle.forEach(detalle => {
-      retorno = retorno + parseInt(detalle.NetDetall);
+      retorno = retorno + this.subtotalDetalle(detalle);
     });
   }
   return retorno;
+}
+subtotalDetalle(detalle){
+  var unitario = parseFloat(detalle.PreDetall);
+  var cantidad = parseFloat(detalle.VolDetall);
+  var retorno = 0;
+  if (unitario > 0 && cantidad > 0){
+    retorno = Math.floor(unitario * cantidad);
+  }
+  return retorno;
+
 }
 calculaImpuesto(total, neto){
   return parseInt(total) - parseInt(neto);
